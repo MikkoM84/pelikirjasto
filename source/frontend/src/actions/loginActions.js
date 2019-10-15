@@ -15,27 +15,31 @@ export const LOGOUT_FAILED = "LOGOUT_FAILED"
 
 export const onLogin = (user) => {
 	return dispatch => {
-	  let request = {
-		  method:"POST",
-		  mode:"cors",
-		  headers:{"Content-Type":"application/json"},
-		  body:JSON.stringify(user)
-	  }
-	  dispatch(fetchLoading());
-	  return fetch("/login", request).then(response => {
-		  if(response.ok) {
-			  response.json().then(data => {
-				 dispatch(loginSuccess(data.token));
-				 dispatch(getShoppingList(data.token));
-			  }).catch(error => {
-				 dispatch(loginFailed("Error parsing JSON"));
-			  })
-		  } else {
-			  dispatch(loginFailed("Server responded with status:"+response.statusText));
-		  }
-	  }).catch(error => {
-		  dispatch(loginFailed(error));
-	  })		
+		let request = {
+			method:"POST",
+			mode:"cors",
+			headers:{"Content-Type":"application/json"},
+			body:JSON.stringify(user)
+		}
+		dispatch(fetchLoading());
+		return fetch("/login", request).then(response => {
+			if(response.ok) {
+				response.json().then(data => {
+					dispatch(loginSuccess(data.token));
+					dispatch(getList(data.token,"/api/pelit/"));
+					dispatch(getList(data.token,"/api/kokoelmat/"));
+					dispatch(getList(data.token,"/api/kategoriat/"));
+					console.log(data);
+				}).catch(error => {
+					dispatch(loginFailed("Error parsing JSON"));
+					console.log(error);
+				})
+			} else {
+				dispatch(loginFailed("Server responded with status:"+response.statusText));
+			}
+		}).catch(error => {
+			dispatch(loginFailed(error));
+		})		
 	}
 }
 
@@ -50,6 +54,7 @@ export const onRegister = (user) => {
 	  dispatch(fetchLoading());
 	  return fetch("/register", request).then(response => {
 		  if(response.ok) {
+			  //TODO: parempi ilmoitus kuin alert
 			  alert("Register success!");
 			  dispatch(registerSuccess());
 		  } else {
@@ -63,21 +68,21 @@ export const onRegister = (user) => {
 
 export const onLogout = (token) => {
 	return dispatch => {
-	 let request = {
-		 method:"POST",
-		 mode:"cors",
-		 credentials:"include",
-		 headers:{"Content-Type":"application/json",
+		let request = {
+			method:"POST",
+			mode:"cors",
+			credentials:"include",
+			headers:{"Content-Type":"application/json",
 					"token":token}
-	 }
-	 dispatch(fetchLoading());
-	 return fetch("/logout",request).then(response => {
-		dispatch(logoutSuccess());
-		dispatch(logoutDone());
-	}).catch(error => {
-		dispatch(logoutFailed(error));
-		dispatch(logoutDone());
-	})		
+		}
+		dispatch(fetchLoading());
+		return fetch("/logout",request).then(response => {
+			dispatch(logoutSuccess());
+			dispatch(logoutDone());
+		}).catch(error => {
+			dispatch(logoutFailed(error));
+			dispatch(logoutDone());
+		})		
 	}
 }
 

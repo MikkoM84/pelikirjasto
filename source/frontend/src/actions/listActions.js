@@ -27,8 +27,13 @@ export const EDIT_CATEGORYLISTITEM_SUCCESS = "EDIT_CATEGORYLISTITEM_SUCCESS"
 export const EDIT_CATEGORYLISTITEM_FAILED = "EDIT_CATEGORYLISTITEM_FAILED"
 export const LOGOUT_DONE = "LOGOUT_DONE"
 
+export const asetaPelilista = (list) => {
+	this.setState({
+		pelilista:list
+	})
+}
 //ACTIONS
-export const getShoppingList = (token) => {
+export const getList = (token,url) => {
 	return dispatch => {
 		let request = {
 			  method:"GET",
@@ -38,159 +43,367 @@ export const getShoppingList = (token) => {
 						"token":token}
 		  }
 		dispatch(fetchLoading());
-		return fetch("/api/shopping",request).then(response => {
+		return fetch(url,request).then(response => {
 				dispatch(loadingDone());
 				if(response.ok) {
 					response.json().then(data => {
-						dispatch(getShoppingListSuccess(data))
+						if(url==="/api/pelit/") {
+							dispatch(getGameListSuccess(data))
+						} else if(url==="/api/kokoelmat/") {
+							dispatch(getCollectionListSuccess(data))
+						} else if(url==="/api/kategoriat/") {
+							dispatch(getCategoryListSuccess(data))
+						} else {
+							console.log("fail_getlist_response, should never go here");
+						}
 					}).catch(error => {
-						dispatch(getShoppingListFailed("Error in parsing response json"));	
+						if(url==="/api/pelit/") {
+							dispatch(getGameListFailed("Error in parsing response json"));
+						} else if(url==="/api/kokoelmat/") {
+							dispatch(getCollectionListFailed("Error in parsing response json"));
+						} else if(url==="/api/kategoriat/") {
+							dispatch(getCategoryListFailed("Error in parsing response json"));
+						} else {
+							console.log("fail_getlist_error, should never go here");
+						}
 					});
 				} else {
-					dispatch(getShoppingListFailed("Server responded with status:"+response.statusText));
+					if(url==="/api/pelit/") {
+						dispatch(getGameListFailed("Server responded with status:"+response.statusText));
+					} else if(url==="/api/kokoelmat/") {
+						dispatch(getCollectionListFailed("Server responded with status:"+response.statusText));
+					} else if(url==="/api/kategoriat/") {
+						dispatch(getCategoryListFailed("Server responded with status:"+response.statusText));
+					} else {
+						console.log("fail_getlist_status, should never go here");
+					}
 
 		  }}).catch(error => {
 				dispatch(loadingDone());
-				dispatch(getShoppingListFailed(error));
+				if(url==="/api/pelit/") {
+					dispatch(getGameListFailed(error));
+				} else if(url==="/api/kokoelmat/") {
+					dispatch(getCollectionListFailed(error));
+				} else if(url==="/api/kategoriat/") {
+					dispatch(getCategoryListFailed(error));
+				} else {
+					console.log("fail_getlist, should never go here");
+				}
 			});		
 		}
 }
 
-export const addToList = (item,token,history) => {
+export const addToList = (item,token,url) => {
 	return dispatch => {
-		 let request = {
-			  method:"POST",
-			  mode:"cors",
-			  credentials:"include",
-			  headers:{"Content-Type":"application/json",
-						"token":token},
-			  body:JSON.stringify(item)
-		  }
-		  dispatch(fetchLoading());
-		  return fetch("/api/shopping",request).then(response => {
-				if(response.ok) {
-					dispatch(addToListSuccess());
-					dispatch(getShoppingList(token));
-					history.push("/list");
-				} else {
-					dispatch(addToListFailed("Server responded with status:"
-					+response.statusText));
-					dispatch(loadingDone());
-
-				}
-		  }).catch(error => {
-				dispatch(addToListFailed(error));
-				dispatch(loadingDone());
-		  })
-		
+		let request = {
+			method:"POST",
+			mode:"cors",
+			credentials:"include",
+			headers:{"Content-Type":"application/json",
+					"token":token},
+			body:JSON.stringify(item)
 		}
-}
-
-export const removeFromList = (id,token) => {
-	return dispatch => {
-	  let request = {
-		  method:"DELETE",
-		  mode:"cors",
-		  credentials:"include",
-		  headers:{"Content-Type":"application/json",
-					"token":token}
-	  }
-	  dispatch(fetchLoading());
-	  return fetch("/api/shopping/"+id,request).then(response => {
+		dispatch(fetchLoading());
+		return fetch(url,request).then(response => {
 			if(response.ok) {
-				dispatch(removeFromListSuccess());
-				dispatch(getShoppingList(token));
+				if(url==="/api/pelit/") {
+					dispatch(addToGameListSuccess());
+				} else if(url==="/api/kokoelmat/") {
+					dispatch(addToCollectionListSuccess());
+				} else if(url==="/api/kategoriat/") {
+					dispatch(addToCategoryListSuccess());
+				} else {
+					console.log("fail_add_to_response, should never go here");
+				}
+				dispatch(getList(token,url));
 			} else {
-				dispatch(removeFromListFailed("Server responded with status:"+response.statusText));
+				if(url==="/api/pelit/") {
+					dispatch(addToGameListFailed("Server responded with status:"+response.statusText));
+				} else if(url==="/api/kokoelmat/") {
+					dispatch(addToCollectionListFailed("Server responded with status:"+response.statusText));
+				} else if(url==="/api/kategoriat/") {
+					dispatch(addToCategoryListFailed("Server responded with status:"+response.statusText));
+				} else {
+					console.log("fail_add_to_status, should never go here");
+				}
 				dispatch(loadingDone());
-
 			}
-	  }).catch(error => {
-			dispatch(removeFromListFailed(error));
+		}).catch(error => {
+			if(url==="/api/pelit/") {
+				dispatch(addToGameListFailed(error));
+			} else if(url==="/api/kokoelmat/") {
+				dispatch(addToCollectionListFailed(error));
+			} else if(url==="/api/kategoriat/") {
+				dispatch(addToCategoryListFailed(error));
+			} else {
+				console.log("fail_add_to_error, should never go here");
+			}
 			dispatch(loadingDone());
-	  })		
+		})
 	}
 }
 
-export const editItem = (item,token) => {
+export const removeFromList = (id,token,url) => {
 	return dispatch => {
-	  let request = {
-		  method:"PUT",
-		  mode:"cors",
-		  credentials:"include",
-		  headers:{"Content-Type":"application/json",
-					"token":token},
-		  body:JSON.stringify(item)
-	  }
-	  dispatch(fetchLoading());
-	  return fetch("/api/shopping/"+item._id,request).then(response => {
+		let request = {
+			method:"DELETE",
+			mode:"cors",
+			credentials:"include",
+			headers:{"Content-Type":"application/json",
+					"token":token}
+		}
+		dispatch(fetchLoading());
+		return fetch(url+id,request).then(response => {
 			if(response.ok) {
-				dispatch(editItemSuccess());
-				dispatch(getShoppingList(token));
+				if(url==="/api/pelit/") {
+					dispatch(removeFromGameListSuccess());
+				} else if(url==="/api/kokoelmat/") {
+					dispatch(removeFromCollectionListSuccess());
+					dispatch(getList(token,"/api/pelit/"));	
+				} else if(url==="/api/kategoriat/") {
+					dispatch(removeFromCategoryListSuccess());
+					dispatch(getList(token,"/api/pelit/"));	
+				} else {
+					console.log("fail_remove_response, should never go here");
+				}
+				dispatch(getList(token,url));	
 			} else {
+				if(url==="/api/pelit/") {
+					dispatch(removeFromGameListFailed("Server responded with status:"+response.statusText));
+				} else if(url==="/api/kokoelmat/") {
+					dispatch(removeFromCollectionListFailed("Server responded with status:"+response.statusText));
+				} else if(url==="/api/kategoriat/") {
+					dispatch(removeFromCategoryListFailed("Server responded with status:"+response.statusText));
+				} else {
+					console.log("fail_remove_status, should never go here");
+				}
 				dispatch(loadingDone());
-				dispatch(editItemFailed("Server responded with status:"+response.statusText));
-
 			}
-	  }).catch(error => {
+		}).catch(error => {
+			if(url==="/api/pelit/") {
+				dispatch(removeFromGameListFailed(error));
+			} else if(url==="/api/kokoelmat/") {
+				dispatch(removeFromCollectionListFailed(error));
+			} else if(url==="/api/kategoriat/") {
+				dispatch(removeFromCategoryListFailed(error));
+			} else {
+				console.log("fail_remove_error, should never go here");
+			}
 			dispatch(loadingDone());
-			dispatch(editItemFailed(error));
-	  })
-		
+		})		
+	}
+}
+
+export const editItem = (item,token,url) => {
+	return dispatch => {
+		let request = {
+			method:"PUT",
+			mode:"cors",
+			credentials:"include",
+			headers:{"Content-Type":"application/json",
+					"token":token},
+			body:JSON.stringify(item)
+		}
+		dispatch(fetchLoading());
+		return fetch(url+item._id,request).then(response => {
+			if(response.ok) {
+				if(url==="/api/pelit/") {
+					dispatch(editGameListItemSuccess());
+				} else if(url==="/api/kokoelmat/") {
+					dispatch(editCollectionListItemSuccess());
+					dispatch(getList(token,"/api/pelit/"));	
+				} else if(url==="/api/kategoriat/") {
+					dispatch(editCategoryListItemSuccess());
+					dispatch(getList(token,"/api/pelit/"));	
+				} else {
+					console.log("fail_edit_response, should never go here");
+				}
+				dispatch(getList(token,url));
+				
+			} else {
+				if(url==="/api/pelit/") {
+					dispatch(editGameListItemFailed("Server responded with status:"+response.statusText));
+				} else if(url==="/api/kokoelmat/") {
+					dispatch(editCollectionListItemFailed("Server responded with status:"+response.statusText));
+				} else if(url==="/api/kategoriat/") {
+					dispatch(editCategoryListItemFailed("Server responded with status:"+response.statusText));
+				} else {
+					console.log("fail_edit_status, should never go here");
+				}
+				dispatch(loadingDone());
+			}
+		}).catch(error => {
+			if(url==="/api/pelit/") {
+				dispatch(editGameListItemFailed(error));
+			} else if(url==="/api/kokoelmat/") {
+				dispatch(editCollectionListItemFailed(error));
+			} else if(url==="/api/kategoriat/") {
+				dispatch(editCategoryListItemFailed(error));
+			} else {
+				console.log("fail_remove_error, should never go here");
+			}
+			dispatch(loadingDone());
+		})
 	}
 }
 
 //ACTION CREATORS
 
-const getShoppingListSuccess = (list) => {
+const getGameListSuccess = (pelilista) => {
 	return {
-		type:GET_SHOPPINGLIST_SUCCESS,
-		list:list
+		type:GET_GAMELIST_SUCCESS,
+		pelilista:pelilista
 	}
 }
 
-const getShoppingListFailed = (error) => {
+const getGameListFailed = (error) => {
 	return {
-		type:GET_SHOPPINGLIST_FAILED,
+		type:GET_GAMELIST_FAILED,
 		error:error
 	}
 }
 
-const addToListSuccess = () => {
+const addToGameListSuccess = () => {
 	return {
-		type:ADD_TO_LIST_SUCCESS
+		type:ADD_TO_GAMELIST_SUCCESS
 	}
 }
 
-const addToListFailed = (error) => {
+const addToGameListFailed = (error) => {
 	return {
-		type:ADD_TO_LIST_FAILED,
+		type:ADD_TO_GAMELIST_FAILED,
 		error:error
 	}	
 }
 
-const removeFromListSuccess = () => {
+const removeFromGameListSuccess = () => {
 	return {
-		type:REMOVE_FROM_LIST_SUCCESS
+		type:REMOVE_FROM_GAMELIST_SUCCESS
 	}
 }
 
-const removeFromListFailed = (error) => {
+const removeFromGameListFailed = (error) => {
 	return {
-		type:REMOVE_FROM_LIST_FAILED,
+		type:REMOVE_FROM_GAMELIST_FAILED,
 		error:error
 	}
 }
 
-const editItemSuccess = () => {
+const editGameListItemSuccess = () => {
 	return {
-		type:EDIT_ITEM_SUCCESS
+		type:EDIT_GAMELISTITEM_SUCCESS
 	}
 }
 
-const editItemFailed = (error) => {
+const editGameListItemFailed = (error) => {
 	return {
-		type:EDIT_ITEM_FAILED,
+		type:EDIT_GAMELISTITEM_FAILED,
+		error:error
+	}
+}
+
+const getCollectionListSuccess = (kokoelmalista) => {
+	return {
+		type:GET_COLLECTIONLIST_SUCCESS,
+		kokoelmalista:kokoelmalista
+	}
+}
+
+const getCollectionListFailed = (error) => {
+	return {
+		type:GET_COLLECTIONLIST_FAILED,
+		error:error
+	}
+}
+
+const addToCollectionListSuccess = () => {
+	return {
+		type:ADD_TO_COLLECTIONLIST_SUCCESS
+	}
+}
+
+const addToCollectionListFailed = (error) => {
+	return {
+		type:ADD_TO_COLLECTIONLIST_FAILED,
+		error:error
+	}	
+}
+
+const removeFromCollectionListSuccess = () => {
+	return {
+		type:REMOVE_FROM_COLLECTIONLIST_SUCCESS
+	}
+}
+
+const removeFromCollectionListFailed = (error) => {
+	return {
+		type:REMOVE_FROM_COLLECTIONLIST_FAILED,
+		error:error
+	}
+}
+
+const editCollectionListItemSuccess = () => {
+	return {
+		type:EDIT_COLLECTIONLISTITEM_SUCCESS
+	}
+}
+
+const editCollectionListItemFailed = (error) => {
+	return {
+		type:EDIT_COLLECTIONLISTITEM_FAILED,
+		error:error
+	}
+}
+
+const getCategoryListSuccess = (kategorialista) => {
+	return {
+		type:GET_CATEGORYLIST_SUCCESS,
+		kategorialista:kategorialista
+	}
+}
+
+const getCategoryListFailed = (error) => {
+	return {
+		type:GET_CATEGORYLIST_FAILED,
+		error:error
+	}
+}
+
+const addToCategoryListSuccess = () => {
+	return {
+		type:ADD_TO_CATEGORYLIST_SUCCESS
+	}
+}
+
+const addToCategoryListFailed = (error) => {
+	return {
+		type:ADD_TO_CATEGORYLIST_FAILED,
+		error:error
+	}	
+}
+
+const removeFromCategoryListSuccess = () => {
+	return {
+		type:REMOVE_FROM_CATEGORYLIST_SUCCESS
+	}
+}
+
+const removeFromCategoryListFailed = (error) => {
+	return {
+		type:REMOVE_FROM_CATEGORYLIST_FAILED,
+		error:error
+	}
+}
+
+const editCategoryListItemSuccess = () => {
+	return {
+		type:EDIT_CATEGORYLISTITEM_SUCCESS
+	}
+}
+
+const editCategoryListItemFailed = (error) => {
+	return {
+		type:EDIT_CATEGORYLISTITEM_FAILED,
 		error:error
 	}
 }

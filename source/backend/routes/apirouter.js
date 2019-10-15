@@ -4,10 +4,6 @@ const pelitModel = require("../models/pelitItem");
 const kokoelmatModel = require("../models/kokoelmatItem");
 const kategoriatModel = require("../models/kategoriatItem");
 
-//database
-//let database = [];
-//let id = 100;
-
 let router = express.Router();
 
 //REST API
@@ -123,6 +119,7 @@ router.post("/kokoelmat", function(req, res) {
 });
 
 router.delete("/kokoelmat/:id", function(req, res) {
+	let kokoelmaquery = {};
 	kokoelmatModel.findById(req.params.id, function(err,item) {
 		if(err) {
 			return res.status(404).json({"message":"not found"});
@@ -131,10 +128,19 @@ router.delete("/kokoelmat/:id", function(req, res) {
 			return res.status(404).json({"message":"not found"});
 		}
 		if(req.session.username === item.username) {
+			kokoelmaquery = {kokoelma:item.kokoelma,username:req.session.username};
 			kokoelmatModel.deleteOne({"_id":req.params.id}, function(err) {
 				if(err) {
 					return res.status(404).json({"message":"not found"});
 				}
+				pelitModel.updateMany(kokoelmaquery,{$set: {kokoelma:""}}, function (err, result) {
+					if (err) {
+						console.log("update document error");
+					} else {
+						console.log("update document success");
+						console.log(result);
+					}
+				})
 				return res.status(200).json({"message":"success"});
 			});
 		} else {
@@ -144,6 +150,7 @@ router.delete("/kokoelmat/:id", function(req, res) {
 });
 
 router.put("/kokoelmat/:id", function(req, res) {
+	let kokoelmaquery = {};
 	kokoelmatModel.findById(req.params.id, function(err,item) {
 		if(err) {
 			return res.status(404).json({"message":"not found"});
@@ -152,6 +159,7 @@ router.put("/kokoelmat/:id", function(req, res) {
 			return res.status(404).json({"message":"not found"});
 		}
 		if(req.session.username === item.username) {
+			kokoelmaquery = {kokoelma:item.kokoelma,username:req.session.username};
 			kokoelmatModel.replaceOne({_id:req.params.id}, {
 				kokoelma:req.body.kokoelma,
 				username:req.session.username
@@ -159,6 +167,14 @@ router.put("/kokoelmat/:id", function(req, res) {
 				if(err) {
 					return res.status(409).json({"message":err});
 				}
+				pelitModel.updateMany(kokoelmaquery,{$set: {kokoelma:req.body.kokoelma}}, function (err, result) {
+					if (err) {
+						console.log("update document error");
+					} else {
+						console.log("update document success");
+						console.log(result);
+					}
+				})
 				return res.status(200).json({"message":"success"});
 			});
 		} else {
@@ -198,6 +214,7 @@ router.post("/kategoriat", function(req, res) {
 });
 
 router.delete("/kategoriat/:id", function(req, res) {
+	let kategoriaquery = {};
 	kategoriatModel.findById(req.params.id, function(err,item) {
 		if(err) {
 			return res.status(404).json({"message":"not found"});
@@ -206,10 +223,19 @@ router.delete("/kategoriat/:id", function(req, res) {
 			return res.status(404).json({"message":"not found"});
 		}
 		if(req.session.username === item.username) {
+			kategoriaquery = {kategoriat:item.kategoria,username:req.session.username};
 			kategoriatModel.deleteOne({"_id":req.params.id}, function(err) {
 				if(err) {
 					return res.status(404).json({"message":"not found"});
 				}
+				pelitModel.updateMany(kategoriaquery,{$pull: {kategoriat:item.kategoria}}, function (err, result) {
+					if (err) {
+						console.log("update document error");
+					} else {
+						console.log("update document success");
+						console.log(result);
+					}
+				})
 				return res.status(200).json({"message":"success"});
 			});
 		} else {
@@ -219,6 +245,7 @@ router.delete("/kategoriat/:id", function(req, res) {
 });
 
 router.put("/kategoriat/:id", function(req, res) {
+	let kategoriaquery = {};
 	kategoriatModel.findById(req.params.id, function(err,item) {
 		if(err) {
 			return res.status(404).json({"message":"not found"});
@@ -227,6 +254,9 @@ router.put("/kategoriat/:id", function(req, res) {
 			return res.status(404).json({"message":"not found"});
 		}
 		if(req.session.username === item.username) {
+			console.log(req.session.username);
+			console.log(item.username);
+			kategoriaquery = {kategoriat:item.kategoria,username:req.session.username};
 			kategoriatModel.replaceOne({_id:req.params.id}, {
 				kategoria:req.body.kategoria,
 				username:req.session.username
@@ -234,6 +264,14 @@ router.put("/kategoriat/:id", function(req, res) {
 				if(err) {
 					return res.status(409).json({"message":err});
 				}
+				pelitModel.updateMany(kategoriaquery,{$set: {"kategoriat.$":req.body.kategoria}}, function (err, result) {
+					if (err) {
+						console.log("update document error");
+					} else {
+						console.log("update document success");
+						console.log(result);
+					}
+				})
 				return res.status(200).json({"message":"success"});
 			});
 		} else {

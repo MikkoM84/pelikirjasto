@@ -2,11 +2,15 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const userModel = require("./models/user");
-const sessionModel = require("./models/session");
+//const sessionModel = require("./models/session");
 const apiRouter = require("./routes/apirouter");
+const bcrypt = require("bcrypt");
+const passport = require("passport");
+const localStrategy = require("passport-local").Strategy;
+const session = require("express-session");
+const mongoStore = require("connect-mongo")(session);
 
 let app = express();
-
 
 
 let ttl_diff = 1000*60*60;
@@ -19,9 +23,74 @@ mongoose.connect("mongodb://localhost/pelikirjasto").then(
 	error => {console.log("Error in connecting Mongodb: " + error)}
 );
 	
-//user database
-//let registeredUsers = [];
-//let loggedUsers = [];
+//app.use(express.static(__dirname+"/public"));
+
+//SESSION MANAGEMENT
+app.use(session({
+	name:"gamelibrary-id",
+	resave:false,
+	secret:"myBestSecret",
+	saveUninitialized:false,
+	cookie:{maxAge:ttl_diff},
+	store: new mongoStore({
+			collection:"session",
+			mongooseConnection:mongoose.connection,
+			ttl:3600
+	})
+}));
+
+// PASSPORT MANAGEMENT
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(function(user,done){
+	console.log("serialize user:"+JSON.stringify(user));
+	done(null,user._id);
+});
+
+passport.deserializeUser(function(_id,done) {
+	console.log("deserialize user:"+_id);
+	userModel.findById(_id,function(err,user) {
+		if(err) {
+			return done(err);
+		}
+		if(!user) {
+			return done(null,false);
+		}
+		return done(null,user);
+	});
+});
+
+passport.use("local-login", new localStrategy({
+	usernameField:"username",
+	passwordField:"password",
+	passReqToCallback:true
+}, function(req,username,password,done) {
+	if(!username || !password) {
+		return done(null,false,{"message":"wrong credentials"});		
+	}
+	if(username.length < 4 || password.length < 8) {
+		return done(null,false,{"message":"wrong credentials"});		
+	}
+	userModel.findOne({"username":username}, function(err,user) {
+		if(err) {
+			return done(err);
+		}
+		if(!user) {
+			return done(null,false,{"message":"wrong credentials"});			
+		}
+		if(bcrypt.compareSync(password, user.password)) {
+			let token = createToken();
+			req.session.token = token;
+			req.session.username = user.username;
+			return done(null,user);			
+		} else {
+			return done(null,false,{"message":"wrong credentials"});			
+		}
+		
+	});	
+}))
 
 //middleware
 app.use(bodyParser.json());
@@ -41,111 +110,70 @@ isUserLogged = (req,res,next) => {
 	if(!token) {
 		return res.status(403).json({"message":"forbidden"});
 	}
-	sessionModel.findOne({"token":token}, function(err,session) {
-		if(err) {
-			return res.status(403).json({"message":"forbidden"});
+	if(req.isAuthenticated()) {
+		if(token === req.session.token) {
+			return next();
 		}
-		if(!session) {
-			return res.status(403).json({"message":"forbidden"});
-		}
-		let now = new Date().getTime();
-		if(now > session.ttl) {
-			sessionModel.deleteOne({"_id":session._id}, function(err) {
-				return res.status(403).json({"message":"forbidden"});
-			});
-		} else {
-			req.session = {};
-			req.session.username = session.username;
-			session.ttl = now + ttl_diff;
-			session.save(function(err,session) {
-				return next();
-			});
-		}
-	})
+	}
+	return res.status(403).json({"message":"forbidden"});
 }
 
 app.use("/api",isUserLogged, apiRouter);
 
 //login api
+
 app.post("/register", function(req,res) {
 	if(!req.body) {
 		return res.status(422).json({"message":"provide credentials"});
 	}
-	if(!req.body.username || !req.body.password){
-		return res.status(422).json({"message":"provide credentials"});
+	if(!req.body.username || !req.body.password) {
+		return res.status(422).json({"message":"provide credentials"});		
 	}
-	if(req.body.username.length < 4 || req.body.password.length < 8){
-		return res.status(422).json({"message":"provide credentials"});
+	if(req.body.username.length < 4 || req.body.password.length < 8) {
+		return res.status(422).json({"message":"provide credentials"});		
 	}
-		
-	let user = new userModel({
-		username:req.body.username,
-		password:req.body.password
-	})
-	user.save(function(err,user){
+	bcrypt.hash(req.body.password,10,function(err,hash) {
 		if(err) {
-			console.log("Register failed. Reason: "+err);
-			return res.status(422).json({"message":"username already in use"});
-		} else {
-			console.log("Register success: "+user.username);
-			return res.status(200).json({"message":"success"});
+			return res.status(422).json({"message":"failed to hash password"})
 		}
+		let user = new userModel({
+			username:req.body.username,
+			password:hash
+		})
+		user.save(function(err,user) {
+			if(err) {
+				console.log("Register failed. Reason:"+err);
+				return res.status(422).json({"message":"username already in use"})
+			} else {
+				console.log("Register success:"+user.username);
+				return res.status(200).json({"message":"success"});
+			}
+		});
 	});
 });
 
-app.post("/login", function(req,res){
-	if(!req.body) {
-		return res.status(422).json({"message":"wrong credentials"});
+app.post("/login", function(req,res,next) {
+ passport.authenticate("local-login", function(err,user,info) {
+	if(err || !user) {
+		return res.status(422).json({message:"provide credentials"})
 	}
-	if(!req.body.username || !req.body.password){
-		return res.status(422).json({"message":"wrong credentials"});
-	}
-	if(req.body.username.length < 4 || req.body.password.length < 8){
-		return res.status(422).json({"message":"wrong credentials"});
-	}
-	userModel.findOne({"username":req.body.username}, function(err,user) {
+	req.login(user, function(err) {
 		if(err) {
-			return res.status(422).json({"message":"wrong credentials"});
+			return res.status(422).json({message:"provide credentials"})			
 		}
-		if(!user) {
-			return res.status(422).json({"message":"wrong credentials"});
-		}
-		//TODO: crypted and salted passwords
-		if(user.password === req.body.password) {
-			let token = createToken();
-			let ttl = new Date().getTime()+ttl_diff;
-			let session = new sessionModel({
-				"username":user.username,
-				"ttl":ttl,
-				"token":token
-			});
-			session.save(function(err,session) {
-				if(err) {
-					return res.status(422).json({"message":"wrong credentials"});
-				} 
-				return res.status(200).json({"token":token});
-			});
-		} else {
-			return res.status(422).json({"message":"wrong credentials"});
-		}
+		return res.status(200).json({message:"success",token:req.session.token});
 	});
+
+	})(req,res,next);
 });
 
 app.post("/logout", function(req,res) {
-	let token = req.headers.token;
-	if(token) {
-		sessionModel.findOne({"token":token}, function(err,session) {
-			if (err) {
-				console.log("Find session failed. Still logging out");
-			}
-			sessionModel.deleteOne({"_id":session._id}, function(err) {
-				if(err) {
-					console.log("Remove session failed");
-				}
-			});
-		});
+	req.logout();
+	if(req.session) {
+		req.session.destroy();
 	}
-	return res.status(200).json({"message":"success"});
+	return res.status(200).json({"message":"success"})
+
 })
 
 app.listen(port);
