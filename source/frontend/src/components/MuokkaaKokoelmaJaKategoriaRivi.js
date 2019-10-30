@@ -1,12 +1,18 @@
 import React from 'react';
 import {Table,Button} from 'semantic-ui-react';
 
-export default class MuokkaaKategoriaRivi extends React.Component {
+export default class MuokkaaKokoelmaJaKategoriaRivi extends React.Component {
 	
 	constructor(props) {
 		super(props);
-		this.state = {
-			kategoria:props.item.kategoria
+		if(this.props.url === "/kokoelmat") {
+			this.state = {
+				koka:props.item.kokoelma
+			}
+		} else {
+			this.state = {
+				koka:props.item.kategoria
+			}
 		}
 	}
 	
@@ -17,9 +23,17 @@ export default class MuokkaaKategoriaRivi extends React.Component {
 	}
 	
 	editItem = () => {
-		let item = {
-			_id:this.props.item._id,
-			kategoria:this.state.kategoria
+		let item = {};
+		if(this.props.url === "/kokoelmat" ) {
+			item = {
+				_id:this.props.item._id,
+				kokoelma:this.state.koka
+			}
+		} else {
+			item = {
+				_id:this.props.item._id,
+				kategoria:this.state.koka
+			}
 		}
 		this.props.editItem(item);
 	}
@@ -32,19 +46,21 @@ export default class MuokkaaKategoriaRivi extends React.Component {
 			<Table.Row>
 				<Table.Cell>
 					<input type="text"
-							name="kategoria"
+							name="koka"
+							required
 							onChange={this.onChange}
-							value={this.state.kategoria}/>
+							value={this.state.koka}/>
 				</Table.Cell>
 				
 				<Table.Cell>
 					<Button color="green"
 							name={this.props.item._id}
-							onClick={this.editItem}>Save</Button>
+							onClick={this.editItem}
+							disabled={!this.state.koka}>Tallenna</Button>
 				</Table.Cell>
 				<Table.Cell>
 					<Button color="red"
-							onClick={this.cancel}>Cancel</Button>
+							onClick={this.cancel}>Peruuta</Button>
 				</Table.Cell>
 			</Table.Row>
 		)		

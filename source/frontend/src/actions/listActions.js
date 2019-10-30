@@ -26,12 +26,10 @@ export const REMOVE_FROM_CATEGORYLIST_FAILED = "REMOVE_FROM_CATEGORYLIST_FAILED"
 export const EDIT_CATEGORYLISTITEM_SUCCESS = "EDIT_CATEGORYLISTITEM_SUCCESS"
 export const EDIT_CATEGORYLISTITEM_FAILED = "EDIT_CATEGORYLISTITEM_FAILED"
 export const LOGOUT_DONE = "LOGOUT_DONE"
+export const SET_GAMECOLLECTION_DONE = "SET_GAMECOLLECTION_DONE"
+export const SET_GAMES_PER_PAGE = "SET_GAMES_PER_PAGE"
 
-export const asetaPelilista = (list) => {
-	this.setState({
-		pelilista:list
-	})
-}
+
 //ACTIONS
 export const getList = (token,url) => {
 	return dispatch => {
@@ -107,11 +105,17 @@ export const addToList = (item,token,url) => {
 		return fetch(url,request).then(response => {
 			if(response.ok) {
 				if(url==="/api/pelit/") {
-					dispatch(addToGameListSuccess());
+				response.json().then(data => {
+					dispatch(addToGameListSuccess(data.message));					
+				})
 				} else if(url==="/api/kokoelmat/") {
-					dispatch(addToCollectionListSuccess());
+				response.json().then(data => {
+					dispatch(addToCollectionListSuccess(data.message));					
+				})
 				} else if(url==="/api/kategoriat/") {
-					dispatch(addToCategoryListSuccess());
+				response.json().then(data => {
+					dispatch(addToCategoryListSuccess(data.message));					
+				})
 				} else {
 					console.log("fail_add_to_response, should never go here");
 				}
@@ -208,12 +212,18 @@ export const editItem = (item,token,url) => {
 		return fetch(url+item._id,request).then(response => {
 			if(response.ok) {
 				if(url==="/api/pelit/") {
-					dispatch(editGameListItemSuccess());
+					response.json().then(data => {
+						dispatch(editGameListItemSuccess(data.message));	
+					})
 				} else if(url==="/api/kokoelmat/") {
-					dispatch(editCollectionListItemSuccess());
+					response.json().then(data => {
+						dispatch(editCollectionListItemSuccess(data.message));	
+					})
 					dispatch(getList(token,"/api/pelit/"));	
 				} else if(url==="/api/kategoriat/") {
-					dispatch(editCategoryListItemSuccess());
+					response.json().then(data => {
+						dispatch(editCategoryListItemSuccess(data.message));	
+					})
 					dispatch(getList(token,"/api/pelit/"));	
 				} else {
 					console.log("fail_edit_response, should never go here");
@@ -263,9 +273,10 @@ const getGameListFailed = (error) => {
 	}
 }
 
-const addToGameListSuccess = () => {
+const addToGameListSuccess = (message) => {
 	return {
-		type:ADD_TO_GAMELIST_SUCCESS
+		type:ADD_TO_GAMELIST_SUCCESS,
+		message:message
 	}
 }
 
@@ -289,9 +300,10 @@ const removeFromGameListFailed = (error) => {
 	}
 }
 
-const editGameListItemSuccess = () => {
+const editGameListItemSuccess = (message) => {
 	return {
-		type:EDIT_GAMELISTITEM_SUCCESS
+		type:EDIT_GAMELISTITEM_SUCCESS,
+		message:message
 	}
 }
 
@@ -316,9 +328,10 @@ const getCollectionListFailed = (error) => {
 	}
 }
 
-const addToCollectionListSuccess = () => {
+const addToCollectionListSuccess = (message) => {
 	return {
-		type:ADD_TO_COLLECTIONLIST_SUCCESS
+		type:ADD_TO_COLLECTIONLIST_SUCCESS,
+		message:message
 	}
 }
 
@@ -342,9 +355,10 @@ const removeFromCollectionListFailed = (error) => {
 	}
 }
 
-const editCollectionListItemSuccess = () => {
+const editCollectionListItemSuccess = (message) => {
 	return {
-		type:EDIT_COLLECTIONLISTITEM_SUCCESS
+		type:EDIT_COLLECTIONLISTITEM_SUCCESS,
+		message:message
 	}
 }
 
@@ -369,9 +383,10 @@ const getCategoryListFailed = (error) => {
 	}
 }
 
-const addToCategoryListSuccess = () => {
+const addToCategoryListSuccess = (message) => {
 	return {
-		type:ADD_TO_CATEGORYLIST_SUCCESS
+		type:ADD_TO_CATEGORYLIST_SUCCESS,
+		message:message
 	}
 }
 
@@ -395,9 +410,10 @@ const removeFromCategoryListFailed = (error) => {
 	}
 }
 
-const editCategoryListItemSuccess = () => {
+const editCategoryListItemSuccess = (message) => {
 	return {
-		type:EDIT_CATEGORYLISTITEM_SUCCESS
+		type:EDIT_CATEGORYLISTITEM_SUCCESS,
+		message:message
 	}
 }
 
@@ -411,5 +427,19 @@ const editCategoryListItemFailed = (error) => {
 export const logoutDone = () => {
 	return {
 		type:LOGOUT_DONE
+	}
+}
+
+export const setPelikokoelma = (pelikokoelma) => {
+	return {
+		type:SET_GAMECOLLECTION_DONE,
+		pelikokoelma:pelikokoelma
+	}
+}
+
+export const setSivulla = (sivulla) => {
+	return {
+		type:SET_GAMES_PER_PAGE,
+		sivulla:sivulla
 	}
 }

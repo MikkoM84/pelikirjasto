@@ -23,7 +23,9 @@ import {
 	REMOVE_FROM_CATEGORYLIST_FAILED,
 	EDIT_CATEGORYLISTITEM_SUCCESS,
 	EDIT_CATEGORYLISTITEM_FAILED,
-	LOGOUT_DONE
+	LOGOUT_DONE,
+	SET_GAMECOLLECTION_DONE,
+	SET_GAMES_PER_PAGE
 } from '../actions/listActions';
 
 const getInitialState = () => {
@@ -35,7 +37,10 @@ const getInitialState = () => {
 			pelilista:[],
 			kokoelmalista:[],
 			kategorialista:[],
-			error:""
+			error:"",
+			message:"",
+			pelikokoelma:"",
+			sivulla:10
 		}
 	}
 }
@@ -67,7 +72,8 @@ const listReducer = (state = initialState, action) => {
 		case ADD_TO_GAMELIST_SUCCESS:
 			tempState = {
 				...state,
-				error:""
+				error:"",
+				message:action.message
 			}
 			saveToStorage(tempState);		
 			return tempState;
@@ -95,7 +101,8 @@ const listReducer = (state = initialState, action) => {
 		case EDIT_GAMELISTITEM_SUCCESS:
 			tempState = {
 				...state,
-				error:""
+				error:"",
+				message:action.message
 			}
 			saveToStorage(tempState);		
 			return tempState;
@@ -124,7 +131,8 @@ const listReducer = (state = initialState, action) => {
 		case ADD_TO_COLLECTIONLIST_SUCCESS:
 			tempState = {
 				...state,
-				error:""
+				error:"",
+				message:action.message
 			}
 			saveToStorage(tempState);		
 			return tempState;
@@ -152,7 +160,8 @@ const listReducer = (state = initialState, action) => {
 		case EDIT_COLLECTIONLISTITEM_SUCCESS:
 			tempState = {
 				...state,
-				error:""
+				error:"",
+				message:action.message
 			}
 			saveToStorage(tempState);		
 			return tempState;
@@ -181,7 +190,8 @@ const listReducer = (state = initialState, action) => {
 		case ADD_TO_CATEGORYLIST_SUCCESS:
 			tempState = {
 				...state,
-				error:""
+				error:"",
+				message:action.message
 			}
 			saveToStorage(tempState);		
 			return tempState;
@@ -209,7 +219,8 @@ const listReducer = (state = initialState, action) => {
 		case EDIT_CATEGORYLISTITEM_SUCCESS:
 			tempState = {
 				...state,
-				error:""
+				error:"",
+				message:action.message
 			}
 			saveToStorage(tempState);		
 			return tempState;
@@ -225,10 +236,26 @@ const listReducer = (state = initialState, action) => {
 				pelilista:[],
 				kokoelmalista:[],
 				kategorialista:[],
-				error:""
+				error:"",
+				message:"",
+				pelikokoelma:""
 			}
 			saveToStorage(tempState);		
-			return tempState;			
+			return tempState;
+		case SET_GAMECOLLECTION_DONE:
+			tempState = {
+				...state,
+				pelikokoelma:action.pelikokoelma
+			}
+			saveToStorage(tempState);		
+			return tempState;
+		case SET_GAMES_PER_PAGE:
+			tempState = {
+				...state,
+				sivulla:action.sivulla
+			}
+			saveToStorage(tempState);		
+			return tempState;
 		default:
 			return state;
 	}

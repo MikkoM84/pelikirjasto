@@ -143,10 +143,10 @@ app.post("/register", function(req,res) {
 		user.save(function(err,user) {
 			if(err) {
 				console.log("Register failed. Reason:"+err);
-				return res.status(422).json({"message":"username already in use"})
+				return res.status(422).json({"message":"Käyttätunnus on jo käytössä."})
 			} else {
 				console.log("Register success:"+user.username);
-				return res.status(200).json({"message":"success"});
+				return res.status(200).json({"message":"Tunnus rekisteröity."});
 			}
 		});
 	});
@@ -155,11 +155,11 @@ app.post("/register", function(req,res) {
 app.post("/login", function(req,res,next) {
  passport.authenticate("local-login", function(err,user,info) {
 	if(err || !user) {
-		return res.status(422).json({message:"provide credentials"})
+		return res.status(422).json({message:"Väärä käyttäjätunnus tai salasana!"})
 	}
 	req.login(user, function(err) {
 		if(err) {
-			return res.status(422).json({message:"provide credentials"})			
+			return res.status(422).json({message:"Väärä käyttäjätunnus tai salasana!"})			
 		}
 		return res.status(200).json({message:"success",token:req.session.token});
 	});

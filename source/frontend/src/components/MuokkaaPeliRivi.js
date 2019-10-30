@@ -1,5 +1,5 @@
 import React from 'react';
-import {Table,Button,Dropdown} from 'semantic-ui-react';
+import {Table,Button,Dropdown,Input} from 'semantic-ui-react';
 
 
 export default class MuokkaaPeliRivi extends React.Component {
@@ -50,6 +50,7 @@ export default class MuokkaaPeliRivi extends React.Component {
 				"value":this.props.kategorialista[i].kategoria,
 			})
 		}
+		kat.sort((a, b) => a.value.localeCompare(b.value));
 		for(let i=0;i<this.props.kokoelmalista.length;i++) {
 			kok.push({
 				"key":this.props.kokoelmalista[i].kokoelma,
@@ -68,14 +69,17 @@ export default class MuokkaaPeliRivi extends React.Component {
 							  value={this.state.kokoelma}/>
 				</Table.Cell>
 				<Table.Cell>
-					<input type="text"
+					<Input type="text"
 							name="nimi"
+							required
+							fluid
 							onChange={this.onChange}
 							value={this.state.nimi}/>	
 				</Table.Cell>
 				<Table.Cell>
-					<input type="text"
+					<Input type="text"
 							name="kuvaus"
+							fluid
 							onChange={this.onChange}
 							value={this.state.kuvaus}/>	
 				</Table.Cell>
@@ -91,11 +95,12 @@ export default class MuokkaaPeliRivi extends React.Component {
 				<Table.Cell>
 					<Button color="green"
 							name={this.props.item._id}
-							onClick={this.editItem}>Save</Button>
+							onClick={this.editItem}
+							disabled={!this.state.nimi}>Tallenna</Button>
 				</Table.Cell>
 				<Table.Cell>
 					<Button color="red"
-							onClick={this.cancel}>Cancel</Button>
+							onClick={this.cancel}>Peruuta</Button>
 				</Table.Cell>
 			</Table.Row>
 		)		

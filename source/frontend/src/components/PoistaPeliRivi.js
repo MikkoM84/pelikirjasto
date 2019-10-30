@@ -13,7 +13,9 @@ export default class PoistaPeliRivi extends React.Component {
 	render() {
 		let kategoriat;
 		if(this.props.item.kategoriat.length > 1 ){
-			kategoriat = <Table.Cell>{(this.props.item.kategoriat).reduce((accumulator,item,index) => {return index===0 ? item : accumulator + ", " + String(item)})}</Table.Cell>
+			kategoriat = <Table.Cell>{(this.props.item.kategoriat).reduce((accumulator,item,index) => {
+				return index===0 ? item : accumulator + ", " + String(item)
+			})}</Table.Cell>
 		} else {
 			kategoriat = <Table.Cell>{this.props.item.kategoriat}</Table.Cell>
 		}
@@ -24,12 +26,12 @@ export default class PoistaPeliRivi extends React.Component {
 				{kategoriat}
 				<Table.Cell>
 					<Button color="red"
-							onClick={this.cancel}>Cancel</Button>
+							onClick={this.cancel}>Peruuta</Button>
 				</Table.Cell>
 				<Table.Cell>
 					<Button color="green"
 							name={this.props.item._id}
-							onClick={this.remove}>Confirm</Button>
+							onClick={this.remove}>Vahvista</Button>
 				</Table.Cell>
 			</Table.Row>
 		)		

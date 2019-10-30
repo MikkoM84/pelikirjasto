@@ -29,13 +29,15 @@ export const onLogin = (user) => {
 					dispatch(getList(data.token,"/api/pelit/"));
 					dispatch(getList(data.token,"/api/kokoelmat/"));
 					dispatch(getList(data.token,"/api/kategoriat/"));
-					console.log(data);
+//					console.log(data);
 				}).catch(error => {
 					dispatch(loginFailed("Error parsing JSON"));
 					console.log(error);
 				})
 			} else {
-				dispatch(loginFailed("Server responded with status:"+response.statusText));
+				response.json().then(data => {
+					dispatch(loginFailed(data.message));
+				})
 			}
 		}).catch(error => {
 			dispatch(loginFailed(error));
@@ -54,11 +56,15 @@ export const onRegister = (user) => {
 	  dispatch(fetchLoading());
 	  return fetch("/register", request).then(response => {
 		  if(response.ok) {
-			  //TODO: parempi ilmoitus kuin alert
-			  alert("Register success!");
-			  dispatch(registerSuccess());
+			//  alert("Register success!");
+			response.json().then(data => {
+			  dispatch(registerSuccess(data.message));
+			})
 		  } else {
-			  dispatch(registerFailed("Server responded with status:"+response.statusText));
+			//  dispatch(registerFailed("Server responded with status:"+response.statusText));
+			response.json().then(data => {
+				dispatch(registerFailed(data.message));
+			})
 		  }
 	  }).catch(error => {
 		  dispatch(registerFailed(error));
@@ -116,9 +122,10 @@ const loginFailed = (error) => {
 	}
 }
 
-const registerSuccess = () => {
+const registerSuccess = (data) => {
 	return {
-		type:REGISTER_SUCCESS
+		type:REGISTER_SUCCESS,
+		register:data
 	}
 }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Form,Button,Dropdown} from 'semantic-ui-react';
+import {Form,Button,Dropdown,Message} from 'semantic-ui-react';
 import {connect} from 'react-redux';
 import {withRouter} from 'react-router-dom';
 import {addToList} from '../actions/listActions';
@@ -12,7 +12,8 @@ class LisaaPeliForm extends React.Component {
 			kokoelma:"",
 			nimi:"",
 			kuvaus:"",
-			kategoriat:[]
+			kategoriat:[],
+			visible: false
 		}
 	}
 	
@@ -39,14 +40,21 @@ class LisaaPeliForm extends React.Component {
 			kategoriat:this.state.kategoriat
 		};
 		this.props.dispatch(addToList(item,this.props.token, "/api/pelit/"));
-//		this.props.addToList(item, "/api/pelit/");
-//		console.log(item);
 		this.setState({
 			kokoelma:"",
 			nimi:"",
 			kuvaus:"",
 			kategoriat:[]
 		})
+		if(this.props.message.length > 0 || this.props.error.length > 0 ) {
+			this.setState({visible:true});
+			setTimeout(() => {
+			  this.setState({ visible: false })
+			}, 3000)
+		}
+	}
+	handleDismiss = () => {
+		this.setState({ visible: false })
 	}
 	
 	render() {
@@ -58,6 +66,7 @@ class LisaaPeliForm extends React.Component {
 				"value":this.props.kokoelmalista[i].kokoelma,
 			})
 		}
+		kokoelmat.sort((a, b) => a.value.localeCompare(b.value));
 		let kat = [];
 		for(let i=0;i<this.props.kategorialista.length;i++) {
 			kat.push({
@@ -66,22 +75,49 @@ class LisaaPeliForm extends React.Component {
 				"value":this.props.kategorialista[i].kategoria,
 			})
 		}
+		kat.sort((a, b) => a.value.localeCompare(b.value));
+		let message = null;
+		if(this.props.error.length > 0) {
+			message = <Message
+				error
+				hidden={!this.state.visible}
+				onDismiss={this.handleDismiss}
+				onClick={this.handleDismiss}
+				header='Virhe'
+				content={this.props.error}
+			  />;
+		}
+		if(this.props.message.length > 0) {
+			  message = <Message
+				success
+				hidden={!this.state.visible}
+				onDismiss={this.handleDismiss}
+				onClick={this.handleDismiss}
+				header={this.props.message}
+			  />;
+		}
 		
 		return(
+		<div>
 			<Form onSubmit={this.onSubmit}>
 				<Form.Field>
 					<label htmlFor="kokoelma">Kokoelma: <span style={{color: 'red'}}>*</span></label>
 					<Dropdown placeholder="Valitse kokoelma"
-							  onChange={this.handleSelect}
-							  name="kokoelma"
-							  fluid selection 
-							  options={kokoelmat}
-							  value={this.state.kokoelma}/>
+							required
+							onChange={this.handleSelect}
+							name="kokoelma"
+							fluid selection 
+							style={{textAlignLast: 'center' }}
+							options={kokoelmat}
+							value={this.state.kokoelma}/>
 				</Form.Field>
 				<Form.Field>
 					<label htmlFor="nimi">Pelin nimi: <span style={{color: 'red'}}>*</span></label>
 					<input type="text"
 							name="nimi"
+							placeholder="Pelin nimi"
+							required
+							style={{textAlign: 'center' }}
 							onChange={this.onChange}
 							value={this.state.nimi}/>
 				</Form.Field>
@@ -89,6 +125,8 @@ class LisaaPeliForm extends React.Component {
 					<label htmlFor="kuvaus">Pelin kuvaus:</label>
 					<input type="text"
 							name="kuvaus"
+							placeholder="Pelin kuvaus"
+							style={{textAlign: 'center' }}
 							onChange={this.onChange}
 							value={this.state.kuvaus}/>
 				</Form.Field>
@@ -98,34 +136,27 @@ class LisaaPeliForm extends React.Component {
 							  onChange={this.handleSelect}
 							  name="kategoriat"
 							  fluid selection multiple
+							style={{textAlignLast: 'center' }}
 							  options={kat}
 							  value={this.state.kategoriat}/>
 				</Form.Field>
 				
 				<Button type="submit" disabled={!this.state.nimi || !this.state.kokoelma}>Lisää</Button>
 			</Form>
+			{message}
+		</div>
 		)
 	}
 }
-/*
-<Form.Field>
-	<Dropdown placeholder="Valitse kokoelma"
-		onChange={this.handleSelect}
-		name="kokoelma"
-		fluid
-		selection
-		options={kokoelmat}
-		value={this.state.kokoelma}
-	  />
-</Form.Field>
-*/
 
 const mapStateToProps = (state) => {
 	return {
 		pelilista:state.list.pelilista,
 		kokoelmalista:state.list.kokoelmalista,
 		kategorialista:state.list.kategorialista,
-		token:state.login.token
+		token:state.login.token,
+		error:state.list.error,
+		message:state.list.message,
 	}
 }
 

@@ -29,14 +29,14 @@ router.post("/pelit", function(req, res) {
 		kuvaus:req.body.kuvaus,
 		username:req.session.username
 	});
-	item.save(function(err,item) {
+	if(!item || item.nimi.length < 1 || item.kokoelma.length < 1) {
+		return res.status(409).json({"message":"Ei tallennettu."});
+	}
+	item.save(function(err) {
 		if(err) {
 			return res.status(409).json({"message":"not saved"});
 		}
-		if(!item) {
-			return res.status(409).json({"message":"not saved"});
-		}
-		return res.status(200).json({"message":"success"});
+		return res.status(200).json({"message":"Peli lisätty."});
 	});
 });
 
@@ -69,6 +69,9 @@ router.put("/pelit/:id", function(req, res) {
 		if(!item) {
 			return res.status(404).json({"message":"not found"});
 		}
+		if( req.body.nimi < 1 ) {
+			return res.status(409).json({"message":"Ei tallennettu."});
+		}
 		if(req.session.username === item.username) {
 			pelitModel.replaceOne({_id:req.params.id}, {
 				kokoelma:req.body.kokoelma,
@@ -80,7 +83,7 @@ router.put("/pelit/:id", function(req, res) {
 				if(err) {
 					return res.status(409).json({"message":err});
 				}
-				return res.status(200).json({"message":"success"});
+				return res.status(200).json({"message":"Muutokset tallennettu."});
 			});
 		} else {
 			return res.status(403).json({"message":"not allowed"});
@@ -107,14 +110,14 @@ router.post("/kokoelmat", function(req, res) {
 		kokoelma:req.body.kokoelma,
 		username:req.session.username
 	});
-	item.save(function(err,item) {
+	if(!item || item.kokoelma.length < 1) {
+		return res.status(409).json({"message":"Ei tallennettu."});
+	}
+	item.save(function(err) {
 		if(err) {
 			return res.status(409).json({"message":"not saved"});
 		}
-		if(!item) {
-			return res.status(409).json({"message":"not saved"});
-		}
-		return res.status(200).json({"message":"success"});
+		return res.status(200).json({"message":"Kokoelma lisätty."});
 	});
 });
 
@@ -158,6 +161,9 @@ router.put("/kokoelmat/:id", function(req, res) {
 		if(!item) {
 			return res.status(404).json({"message":"not found"});
 		}
+		if(req.body.kokoelma.length < 1 ) {
+			return res.status(409).json({"message":"Ei tallennettu."});
+		}
 		if(req.session.username === item.username) {
 			kokoelmaquery = {kokoelma:item.kokoelma,username:req.session.username};
 			kokoelmatModel.replaceOne({_id:req.params.id}, {
@@ -175,7 +181,7 @@ router.put("/kokoelmat/:id", function(req, res) {
 						console.log(result);
 					}
 				})
-				return res.status(200).json({"message":"success"});
+				return res.status(200).json({"message":"Muutokset tallennettu."});
 			});
 		} else {
 			return res.status(403).json({"message":"not allowed"});
@@ -202,14 +208,14 @@ router.post("/kategoriat", function(req, res) {
 		kategoria:req.body.kategoria,
 		username:req.session.username
 	});
+		if(!item || item.kategoria < 1) {
+			return res.status(409).json({"message":"Ei tallennettu."});
+		}
 	item.save(function(err,item) {
 		if(err) {
 			return res.status(409).json({"message":"not saved"});
 		}
-		if(!item) {
-			return res.status(409).json({"message":"not saved"});
-		}
-		return res.status(200).json({"message":"success"});
+		return res.status(200).json({"message":"Kategoria lisätty."});
 	});
 });
 
@@ -253,6 +259,9 @@ router.put("/kategoriat/:id", function(req, res) {
 		if(!item) {
 			return res.status(404).json({"message":"not found"});
 		}
+		if(req.body.kategoria.length < 1 ) {
+			return res.status(409).json({"message":"Ei tallennettu."});
+		}
 		if(req.session.username === item.username) {
 			console.log(req.session.username);
 			console.log(item.username);
@@ -272,7 +281,7 @@ router.put("/kategoriat/:id", function(req, res) {
 						console.log(result);
 					}
 				})
-				return res.status(200).json({"message":"success"});
+				return res.status(200).json({"message":"Muutokset tallennettu."});
 			});
 		} else {
 			return res.status(403).json({"message":"not allowed"});

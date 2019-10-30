@@ -1,13 +1,10 @@
 import React from 'react';
-import {Table,Button} from 'semantic-ui-react';
+import {Table,Icon} from 'semantic-ui-react';
 
 export default class NormaaliPeliRivi extends React.Component {
 	
-	state = { checked: false }
-	toggle = () => this.setState(prevState => ({ checked: !prevState.checked }))
-	
 	remove = (event) => {
-		this.props.removeFromList(event.target.name);
+		this.props.removeFromList(event.target.id);
 	}
 	
 	edit = (event) => {
@@ -17,7 +14,8 @@ export default class NormaaliPeliRivi extends React.Component {
 	render() {
 		let kategoriat;
 		if(this.props.item.kategoriat.length > 1 ){
-			kategoriat = <Table.Cell>{(this.props.item.kategoriat).reduce((accumulator,item,index) => {return index===0 ? item : accumulator + ", " + String(item)})}</Table.Cell>
+			kategoriat = <Table.Cell>{([...this.props.item.kategoriat]).sort()
+			.reduce((accumulator,item,index) => {return index===0 ? item : accumulator + ", " + String(item)})}</Table.Cell>
 		} else {
 			kategoriat = <Table.Cell>{this.props.item.kategoriat}</Table.Cell>
 		}
@@ -28,13 +26,11 @@ export default class NormaaliPeliRivi extends React.Component {
 				<Table.Cell>{this.props.item.nimi}</Table.Cell>
 				<Table.Cell>{this.props.item.kuvaus}</Table.Cell>
 				{kategoriat}
-				<Table.Cell>
-					<Button name={this.props.item._id}
-							onClick={this.remove}>Remove</Button>
+				<Table.Cell id={this.props.item._id} onClick={this.remove}>
+					<Icon name='remove' id={this.props.item._id} onClick={this.remove}/>
 				</Table.Cell>
-				<Table.Cell>
-					<Button id={this.props.item._id}
-							onClick={this.edit}>Edit</Button>
+				<Table.Cell id={this.props.item._id} onClick={this.edit}>
+					<Icon name='edit' id={this.props.item._id} onClick={this.edit}/>
 				</Table.Cell>
 			</Table.Row>
 		)

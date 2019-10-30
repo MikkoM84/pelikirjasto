@@ -12,14 +12,14 @@ import {
 const getInitialState = () => {
 	if(sessionStorage.getItem("loginstate")) {
 		let state = JSON.parse(sessionStorage.getItem("loginstate"));
-		console.log(state);
 		return state;
 	} else {
 		return {
 			isLogged:false,
 			token:"",
 			loading:false,
-			error:""
+			error:"",
+			register:""
 		}
 	}
 }
@@ -53,7 +53,8 @@ const loginReducer = (state = initialState, action) => {
 				loading:false,
 				error:"",
 				token:action.token,
-				isLogged:true
+				isLogged:true,
+				register:""
 			}
 			saveToStorage(tempState);
 			return tempState;			
@@ -61,21 +62,24 @@ const loginReducer = (state = initialState, action) => {
 			tempState = {
 				...state,
 				loading:false,
-				error:action.error
+				error:action.error,
+				register:""
 			}
 			saveToStorage(tempState);
 			return tempState;
 		case REGISTER_SUCCESS:
 			tempState = {
 				...state,
-				loading:false
+				loading:false,
+				register:action.register
 			}
 			return tempState;
 		case REGISTER_FAILED:
 			tempState = {
 				...state,
 				loading:false,
-				error:action.error
+				error:action.error,
+				register:""
 			}
 			saveToStorage(tempState);
 			return tempState;
@@ -84,7 +88,8 @@ const loginReducer = (state = initialState, action) => {
 				loading:false,
 				error:"",
 				isLogged:false,
-				token:""
+				token:"",
+				register:""
 			}
 			saveToStorage(tempState);
 			return tempState;
@@ -93,7 +98,8 @@ const loginReducer = (state = initialState, action) => {
 				loading:false,
 				error:action.error,
 				isLogged:false,
-				token:""
+				token:"",
+				register:""
 			}
 			saveToStorage(tempState);
 			return tempState;			
