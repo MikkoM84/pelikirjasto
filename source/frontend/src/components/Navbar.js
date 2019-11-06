@@ -11,6 +11,10 @@ class Navbar extends React.Component {
 	}
   
 	render() {
+		let status = "";
+		if(this.props.loading) {
+			status = <div>Loading... <Icon loading name='spinner' /></div>;
+		}
 		let navbar = <div></div>;
 		if(this.props.isLogged) {
 			navbar =
@@ -62,12 +66,14 @@ class Navbar extends React.Component {
 			<div>
 				<Header><h1>Pelikirjasto</h1></Header>
 				{navbar}
+				<h2>{status}</h2>
 			</div>
 		)
 	}
 }
 
 const mapStateToProps = (state) => {
+	
 	return {
 		isLogged:state.login.isLogged,
 		token:state.login.token,
