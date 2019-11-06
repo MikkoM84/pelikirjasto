@@ -11,14 +11,6 @@ class Navbar extends React.Component {
 	}
   
 	render() {
-		let status = "";
-		if(this.props.loading) {
-			status = <div>Loading... <Icon loading name='spinner' /></div>;
-		}
-		if(this.props.error.length > 0) {
-			
-			status = <div style={{color:"red"}}>{this.props.error}</div>;
-		}
 		let navbar = <div></div>;
 		if(this.props.isLogged) {
 			navbar =
@@ -70,26 +62,16 @@ class Navbar extends React.Component {
 			<div>
 				<Header><h1>Pelikirjasto</h1></Header>
 				{navbar}
-				<h2>{status}</h2>
 			</div>
 		)
 	}
 }
 
 const mapStateToProps = (state) => {
-	let error = ""
-	if(state.list.error.length > 0) {
-		error = state.list.error
-	}
-	if(state.login.error.length > 0) {
-		error = state.login.error
-	}
 	return {
 		isLogged:state.login.isLogged,
 		token:state.login.token,
-		loading:state.login.loading,
-		error:error,
-		register:state.login.register
+		loading:state.login.loading
 	}
 }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Table,Dropdown,Input,Message,Pagination} from 'semantic-ui-react';
+import {Table,Dropdown,Input,Message,Pagination,Grid} from 'semantic-ui-react';
 import NormaaliPeliRivi from './NormaaliPeliRivi';
 import PoistaPeliRivi from './PoistaPeliRivi';
 import MuokkaaPeliRivi from './MuokkaaPeliRivi';
@@ -13,23 +13,26 @@ class PeliLista extends React.Component {
 			removeIndex:-1,
 			editIndex:-1,
 			kokoelma:this.props.pelikokoelma,
+			kategoriat:[],
 			showKokoelma:false,
 			searchStr: "",
 			visible: false,
 			page:1,
 			sivulla:this.props.sivulla ? this.props.sivulla : 10
 		}
-	//	this.handleChange = this.handleChange.bind(this);
+	
 	}
 	
 	static getDerivedStateFromProps(props, state) {
-    // Re-run the filter whenever the list array or filter text change.
-    // Note we need to store prevPropsList and prevFilterText to detect changes.
-		if ( props.pelilista !== state.prevPropsList || state.prevFilterText !== state.searchStr ) {
+    // Filtteri ajetaan uudestaan aina kun pelilista, filtteri teksti tai valitut kategoriat muuttuvat.
+		if ( props.pelilista !== state.prevPropsList || state.prevFilterText !== state.searchStr || 
+			state.prevFilterSelection !== state.kategoriat ) {
 			return {
 				prevPropsList: props.pelilista,
 				prevFilterText: state.searchStr,
-				filteredList: props.pelilista.filter(item => item.nimi.toLowerCase().includes(state.searchStr.toLowerCase()))
+				prevFilterSelection: state.kategoriat,
+				filteredList: props.pelilista.filter(item => state.kategoriat.every(r => item.kategoriat.includes(r)) && 
+				item.nimi.toLowerCase().includes(state.searchStr.toLowerCase()))
 				.sort((a, b) => a.nimi.localeCompare(b.nimi))
 			};
 		}
@@ -42,7 +45,6 @@ class PeliLista extends React.Component {
 			page:1
 		});
 	}
-	
 	remove = (id) => {
 		for(let i=0; i<this.state.filteredList.length;i++) {
 			if(this.state.filteredList[i]._id === id) {
@@ -70,21 +72,17 @@ class PeliLista extends React.Component {
 	handleRemove = (id) => {
 		this.props.dispatch(removeFromList(id,this.props.token, "/api/pelit/"));
 		this.cancel();
+		if(this.props.message.length > 0 || this.props.error.length > 0 ) {
+			this.setState({visible:true});
+		}
 	}
 	editItem = (item) => {
 		this.props.dispatch(editItem(item,this.props.token, "/api/pelit/"));
 		this.cancel();
 		if(this.props.message.length > 0 || this.props.error.length > 0 ) {
 			this.setState({visible:true});
-			setTimeout(() => {
-			  this.setState({ visible: false })
-			}, 3000)
 		}
 	}
-	handleDismiss = () => {
-		this.setState({ visible: false })
-	}
-	
 	cancel = () => {
 		this.setState({
 			removeIndex:-1,
@@ -92,17 +90,19 @@ class PeliLista extends React.Component {
 			showKokoelma:false
 		});
 	}
-	
+	handleDismiss = () => {
+		this.setState({ visible: false })
+	}
 	handleSelect = (event,data) => {
 		this.setState({kokoelma:data.value});
 		this.props.dispatch(setPelikokoelma(data.value));
 	}
-	
-	
+	handleMultiSelect = (event,data) => {
+		this.setState({kategoriat:data.value});
+	}
 	setPageNum = (event, { activePage }) => {
 		this.setState({ page: Math.ceil(activePage) });
 	};
-	
 	handleInputChange = (e, { name, value }) => {
 		this.setState({ [name]: value });
 		this.props.dispatch(setSivulla(value));
@@ -110,7 +110,16 @@ class PeliLista extends React.Component {
 	
 	render() {
 		let message = null;
-		if(this.props.error.length > 0) {
+/*		if(this.props.message.length > 0) {
+			  message = <Message
+				success
+				hidden={!this.state.visible}
+				onDismiss={this.handleDismiss}
+				onClick={this.handleDismiss}
+				header={this.props.message}
+			  />;
+		}
+*/		if(this.props.error.length > 0) {
 			message = <Message
 				error
 				hidden={!this.state.visible}
@@ -120,14 +129,13 @@ class PeliLista extends React.Component {
 				content={this.props.error}
 			  />;
 		}
-		if(this.props.message.length > 0) {
-			  message = <Message
-				success
-				hidden={!this.state.visible}
-				onDismiss={this.handleDismiss}
-				onClick={this.handleDismiss}
-				header={this.props.message}
-			  />;
+		let kat = [];
+		for(let i=0;i<this.props.kategorialista.length;i++) {
+			kat.push({
+				"key":this.props.kategorialista[i].kategoria,
+				"text":this.props.kategorialista[i].kategoria,
+				"value":this.props.kategorialista[i].kategoria,
+			})
 		}
 		let kokoelmat = [];
 		kokoelmat.push({"key":"",
@@ -140,7 +148,6 @@ class PeliLista extends React.Component {
 				"value":this.props.kokoelmalista[i].kokoelma,
 			})
 		}
-		kokoelmat.sort((a, b) => a.value.localeCompare(b.value));
 		let listitems = this.state.filteredList.map((item,index) => {
 			if(item.kokoelma === this.state.kokoelma ) {
 				if(this.state.removeIndex === index) {
@@ -154,8 +161,8 @@ class PeliLista extends React.Component {
 									item={item}
 									editItem={this.editItem}
 									cancel={this.cancel}
-									kokoelmalista={this.props.kokoelmalista}
-									kategorialista={this.props.kategorialista}/>
+									kokoelmalista={kokoelmat}
+									kategorialista={kat}/>
 				}
 				return <NormaaliPeliRivi key={item._id}
 							removeFromList={this.remove}
@@ -168,10 +175,9 @@ class PeliLista extends React.Component {
 		});
 		
 		const page = this.state.page;
-		listitems = listitems.filter((el) => el != null);
-		const items = listitems.slice(
-		  (page - 1) * this.state.sivulla,
-		  (page - 1) * this.state.sivulla + this.state.sivulla
+		listitems = listitems.filter((el) => el != null).slice(
+			(page - 1) * this.state.sivulla,
+			(page - 1) * this.state.sivulla + this.state.sivulla
 		);
 		const totalPages = listitems.length / this.state.sivulla;
 		const opt = [{ text: 10, value: 10 },{ text: 20, value: 20 },{ text: 50, value: 50 },
@@ -179,11 +185,12 @@ class PeliLista extends React.Component {
 
 		return(
 			<div>
-				<div>
+				<Grid columns={1}>
+					<Grid.Column>
 					<Dropdown placeholder="Valitse kokoelma"
 						onChange={this.handleSelect}
 						name="kokoelma"
-						selection 
+						selection
 						options={kokoelmat}
 						value={this.state.kokoelma}
 					/>
@@ -193,7 +200,15 @@ class PeliLista extends React.Component {
 						onChange={this.handleChange}
 						placeholder="Etsi"
 					/>
-				</div>
+					<Dropdown placeholder="Kategoriafilter"
+						onChange={this.handleMultiSelect}
+						name="kategoriat"
+						multiple selection search
+						options={kat}
+						value={this.state.kategoriat}
+					/>
+					</Grid.Column>
+				</Grid>
 				<Table celled compact="very">
 					<Table.Header>
 						<Table.Row>
@@ -208,7 +223,7 @@ class PeliLista extends React.Component {
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{items}
+						{listitems}
 					</Table.Body>
 				</Table>
 				<Pagination 
@@ -235,8 +250,8 @@ class PeliLista extends React.Component {
 const mapStateToProps = (state) => {
 	return {
 		pelilista:state.list.pelilista,
-		kokoelmalista:state.list.kokoelmalista,
-		kategorialista:state.list.kategorialista,
+		kokoelmalista:state.list.kokoelmalista.sort((a, b) => a.kokoelma.localeCompare(b.kokoelma)),
+		kategorialista:state.list.kategorialista.sort((a, b) => a.kategoria.localeCompare(b.kategoria)),
 		token:state.login.token,
 		error:state.list.error,
 		message:state.list.message,

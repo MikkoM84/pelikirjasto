@@ -13,7 +13,7 @@ export default class PoistaPeliRivi extends React.Component {
 	render() {
 		let kategoriat;
 		if(this.props.item.kategoriat.length > 1 ){
-			kategoriat = <Table.Cell>{(this.props.item.kategoriat).reduce((accumulator,item,index) => {
+			kategoriat = <Table.Cell>{(this.props.item.kategoriat).sort().reduce((accumulator,item,index) => {
 				return index===0 ? item : accumulator + ", " + String(item)
 			})}</Table.Cell>
 		} else {

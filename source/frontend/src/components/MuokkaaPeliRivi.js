@@ -41,23 +41,7 @@ export default class MuokkaaPeliRivi extends React.Component {
 	}
 	
 	render() {
-		let kat = [];
-		let kok = [];
-		for(let i=0;i<this.props.kategorialista.length;i++) {
-			kat.push({
-				"key":this.props.kategorialista[i].kategoria,
-				"text":this.props.kategorialista[i].kategoria,
-				"value":this.props.kategorialista[i].kategoria,
-			})
-		}
-		kat.sort((a, b) => a.value.localeCompare(b.value));
-		for(let i=0;i<this.props.kokoelmalista.length;i++) {
-			kok.push({
-				"key":this.props.kokoelmalista[i].kokoelma,
-				"text":this.props.kokoelmalista[i].kokoelma,
-				"value":this.props.kokoelmalista[i].kokoelma,
-			})
-		}
+		
 		return(
 			<Table.Row>
 				<Table.Cell>
@@ -65,7 +49,7 @@ export default class MuokkaaPeliRivi extends React.Component {
 							  onChange={this.handleSelect}
 							  name="kokoelma"
 							  fluid selection
-							  options={kok}
+							  options={this.props.kokoelmalista}
 							  value={this.state.kokoelma}/>
 				</Table.Cell>
 				<Table.Cell>
@@ -88,7 +72,7 @@ export default class MuokkaaPeliRivi extends React.Component {
 							  onChange={this.handleSelect}
 							  name="kategoriat"
 							  fluid selection multiple
-							  options={kat}
+							  options={this.props.kategorialista}
 							  value={this.state.kategoriat}/>
 					
 				</Table.Cell>

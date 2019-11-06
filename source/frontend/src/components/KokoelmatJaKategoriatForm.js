@@ -49,6 +49,15 @@ class KokoelmatJaKategoriatForm extends React.Component {
 	
 	render() {
 		let message = null;
+		if(this.props.message.length > 0) {
+			  message = <Message
+				success
+				hidden={!this.state.visible}
+				onDismiss={this.handleDismiss}
+				onClick={this.handleDismiss}
+				header={this.props.message}
+			  />;
+		}
 		if(this.props.error.length > 0) {
 			message = <Message
 				error
@@ -57,15 +66,6 @@ class KokoelmatJaKategoriatForm extends React.Component {
 				onClick={this.handleDismiss}
 				header='Virhe'
 				content={this.props.error}
-			  />;
-		}
-		if(this.props.message.length > 0) {
-			  message = <Message
-				success
-				hidden={!this.state.visible}
-				onDismiss={this.handleDismiss}
-				onClick={this.handleDismiss}
-				header={this.props.message}
 			  />;
 		}
 		let nimi = "";

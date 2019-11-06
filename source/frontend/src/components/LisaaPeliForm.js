@@ -41,7 +41,7 @@ class LisaaPeliForm extends React.Component {
 		};
 		this.props.dispatch(addToList(item,this.props.token, "/api/pelit/"));
 		this.setState({
-			kokoelma:"",
+			
 			nimi:"",
 			kuvaus:"",
 			kategoriat:[]

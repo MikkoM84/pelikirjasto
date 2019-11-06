@@ -12,7 +12,7 @@ class LoginForm extends React.Component {
 			password:"",
 			errormsg1:null,
 			errormsg2:null,
-			visible:false,
+			visible:true,
 		}
 	}
 	

@@ -49,9 +49,6 @@ class KokoelmaJaKategoriaLista extends React.Component {
 		this.cancel();
 		if(this.props.message.length > 0 || this.props.error.length > 0 ) {
 			this.setState({visible:true});
-			setTimeout(() => {
-			  this.setState({ visible: false })
-			}, 3000)
 		}
 	}
 	
@@ -90,7 +87,7 @@ class KokoelmaJaKategoriaLista extends React.Component {
 			
 		})
 		let message = null;
-		if(this.props.message.length > 0) {
+	/*	if(this.props.message.length > 0) {
 			message = <Message
 				success
 				hidden={!this.state.visible}
@@ -99,7 +96,7 @@ class KokoelmaJaKategoriaLista extends React.Component {
 				header={this.props.message}
 			/>;
 		}
-		if(this.props.error.length > 0) {
+	*/	if(this.props.error.length > 0) {
 			message = <Message
 				error
 				hidden={!this.state.visible}
