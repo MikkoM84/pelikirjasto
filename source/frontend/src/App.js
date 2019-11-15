@@ -1,9 +1,9 @@
 import React from 'react';
 import './App.css';
-import LisaaPeliForm from './components/LisaaPeliForm';
-import PeliLista from './components/PeliLista';
-import KokoelmatJaKategoriatForm from './components/KokoelmatJaKategoriatForm';
-import KokoelmaJaKategoriaLista from './components/KokoelmaJaKategoriaLista';
+import AddGameForm from './components/AddGameForm';
+import GameList from './components/GameList';
+import CollectionAndCategoryForm from './components/CollectionAndCategoryForm';
+import CollectionAndCategoryList from './components/CollectionAndCategoryList';
 import {Switch,Route,Redirect,withRouter} from 'react-router-dom';
 import Navbar from './components/Navbar';
 import LoginForm from './components/LoginForm';
@@ -11,7 +11,6 @@ import {connect} from 'react-redux';
 
 class App extends React.Component {
 	
-
 	render() {
 	  return (
 		<div className="App">
@@ -24,24 +23,24 @@ class App extends React.Component {
 				}/>
 				<Route path="/pelit" render={() =>
 					this.props.isLogged ?
-					(<PeliLista/>) :
+					(<GameList/>) :
 					(<Redirect to="/" />)
 				}/>
 				<Route path="/lisaaPeli" render={() =>
 					this.props.isLogged ?
-					(<LisaaPeliForm />) :
+					(<AddGameForm />) :
 					(<Redirect to="/" />)
 				}/>
 				<Route path="/kokoelmat" render={() =>
 					this.props.isLogged ?
-					(<div><KokoelmatJaKategoriatForm />
-					<KokoelmaJaKategoriaLista /></div>) :
+					(<div><CollectionAndCategoryForm />
+					<CollectionAndCategoryList /></div>) :
 					(<Redirect to="/" />)
 				}/>
 				<Route path="/kategoriat" render={() =>
 					this.props.isLogged ?
-					(<div><KokoelmatJaKategoriatForm />
-					<KokoelmaJaKategoriaLista /></div>) :
+					(<div><CollectionAndCategoryForm />
+					<CollectionAndCategoryList /></div>) :
 					(<Redirect to="/" />)
 				}/>
 				<Route render={() =>

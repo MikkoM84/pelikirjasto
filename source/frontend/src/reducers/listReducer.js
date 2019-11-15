@@ -34,13 +34,13 @@ const getInitialState = () => {
 		return state;
 	} else {
 		return {
-			pelilista:[],
-			kokoelmalista:[],
-			kategorialista:[],
+			gameList:[],
+			collectionList:[],
+			categoryList:[],
 			error:"",
 			message:"",
-			pelikokoelma:"",
-			sivulla:10
+			gameCollection:"",
+			gamesPerPage:10
 		}
 	}
 }
@@ -58,7 +58,7 @@ const listReducer = (state = initialState, action) => {
 			tempState = {
 				...state,
 				error:"",
-				pelilista:action.pelilista
+				gameList:action.gameList
 			}
 			saveToStorage(tempState);
 			return tempState;
@@ -117,7 +117,7 @@ const listReducer = (state = initialState, action) => {
 			tempState = {
 				...state,
 				error:"",
-				kokoelmalista:action.kokoelmalista
+				collectionList:action.collectionList
 			}
 			saveToStorage(tempState);
 			return tempState;
@@ -176,7 +176,7 @@ const listReducer = (state = initialState, action) => {
 			tempState = {
 				...state,
 				error:"",
-				kategorialista:action.kategorialista
+				categoryList:action.categoryList
 			}
 			saveToStorage(tempState);
 			return tempState;
@@ -233,26 +233,26 @@ const listReducer = (state = initialState, action) => {
 			return tempState;
 		case LOGOUT_DONE:
 			tempState = {
-				pelilista:[],
-				kokoelmalista:[],
-				kategorialista:[],
+				gameList:[],
+				collectionList:[],
+				categoryList:[],
 				error:"",
 				message:"",
-				pelikokoelma:""
+				gameCollection:""
 			}
 			saveToStorage(tempState);		
 			return tempState;
 		case SET_GAMECOLLECTION_DONE:
 			tempState = {
 				...state,
-				pelikokoelma:action.pelikokoelma
+				gameCollection:action.gameCollection
 			}
 			saveToStorage(tempState);		
 			return tempState;
 		case SET_GAMES_PER_PAGE:
 			tempState = {
 				...state,
-				sivulla:action.sivulla
+				gamesPerPage:action.gamesPerPage
 			}
 			saveToStorage(tempState);		
 			return tempState;

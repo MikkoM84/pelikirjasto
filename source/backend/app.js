@@ -2,7 +2,6 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const userModel = require("./models/user");
-//const sessionModel = require("./models/session");
 const apiRouter = require("./routes/apirouter");
 const bcrypt = require("bcrypt");
 const passport = require("passport");
@@ -10,15 +9,16 @@ const localStrategy = require("passport-local").Strategy;
 const session = require("express-session");
 const mongoStore = require("connect-mongo")(session);
 
+let config = require('./config');
+
 let app = express();
 
-
 let ttl_diff = 1000*60*60;
-//let ttl_diff = 1000*10;
 
 let port = process.env.PORT || 3001;
 
-mongoose.connect("mongodb://localhost/pelikirjasto").then(
+mongoose.connect("mongodb+srv://"+config.mongouser+":"+config.mongopassword+"@"+
+		config.mongoaddress+config.mongoDB+config.options, { useNewUrlParser: true }).then(
 	() => {console.log("Success in connecting Mongodb")},
 	error => {console.log("Error in connecting Mongodb: " + error)}
 );

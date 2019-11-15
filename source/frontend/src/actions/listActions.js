@@ -259,10 +259,10 @@ export const editItem = (item,token,url) => {
 
 //ACTION CREATORS
 
-const getGameListSuccess = (pelilista) => {
+const getGameListSuccess = (gameList) => {
 	return {
 		type:GET_GAMELIST_SUCCESS,
-		pelilista:pelilista
+		gameList:gameList
 	}
 }
 
@@ -314,10 +314,10 @@ const editGameListItemFailed = (error) => {
 	}
 }
 
-const getCollectionListSuccess = (kokoelmalista) => {
+const getCollectionListSuccess = (collectionList) => {
 	return {
 		type:GET_COLLECTIONLIST_SUCCESS,
-		kokoelmalista:kokoelmalista
+		collectionList:collectionList
 	}
 }
 
@@ -369,10 +369,10 @@ const editCollectionListItemFailed = (error) => {
 	}
 }
 
-const getCategoryListSuccess = (kategorialista) => {
+const getCategoryListSuccess = (categoryList) => {
 	return {
 		type:GET_CATEGORYLIST_SUCCESS,
-		kategorialista:kategorialista
+		categoryList:categoryList
 	}
 }
 
@@ -430,16 +430,16 @@ export const logoutDone = () => {
 	}
 }
 
-export const setPelikokoelma = (pelikokoelma) => {
+export const setGameCollection = (gameCollection) => {
 	return {
 		type:SET_GAMECOLLECTION_DONE,
-		pelikokoelma:pelikokoelma
+		gameCollection:gameCollection
 	}
 }
 
-export const setSivulla = (sivulla) => {
+export const setGamesPerPage = (gamesPerPage) => {
 	return {
 		type:SET_GAMES_PER_PAGE,
-		sivulla:sivulla
+		gamesPerPage:gamesPerPage
 	}
 }

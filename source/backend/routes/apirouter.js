@@ -1,16 +1,16 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const pelitModel = require("../models/pelitItem");
-const kokoelmatModel = require("../models/kokoelmatItem");
-const kategoriatModel = require("../models/kategoriatItem");
+const gameModel = require("../models/gameItem");
+const collectionModel = require("../models/collectionItem");
+const categoryModel = require("../models/categoryItem");
 
 let router = express.Router();
 
 //REST API
 router.get("/pelit", function(req, res) {
 	let username = req.session.username;
-	let list = [];
-	pelitModel.find({"username":username}, {"kokoelma":1,"kategoriat":1,"nimi":1,"kuvaus":1}, function(err,items) { 
+	//let list = [];
+	gameModel.find({"username":username}, {"collectionName":1,"categories":1,"game":1,"description":1}, function(err,items) { 
 		if(err) {
 			return res.status(404).json({"message":"not found", "list":[]});
 		}
@@ -22,62 +22,62 @@ router.get("/pelit", function(req, res) {
 });
 
 router.post("/pelit", function(req, res) {
-	let item = new pelitModel({
-		kokoelma:req.body.kokoelma,
-		kategoriat:req.body.kategoriat,
-		nimi:req.body.nimi,
-		kuvaus:req.body.kuvaus,
+	let item = new gameModel({
+		collectionName:req.body.collectionName,
+		categories:req.body.categories,
+		game:req.body.game,
+		description:req.body.description,
 		username:req.session.username
 	});
-	if(!item || item.nimi.length < 1 || item.kokoelma.length < 1) {
+	if(!item || item.game.length < 1 || item.collectionName.length < 1) {
 		return res.status(409).json({"message":"Ei tallennettu."});
 	}
 	item.save(function(err) {
 		if(err) {
-			return res.status(409).json({"message":"not saved"});
+			return res.status(409).json({"message":"Ei tallennettu."});
 		}
 		return res.status(200).json({"message":"Peli lisätty."});
 	});
 });
 
 router.delete("/pelit/:id", function(req, res) {
-	pelitModel.findById(req.params.id, function(err,item) {
+	gameModel.findById(req.params.id, function(err,item) {
 		if(err) {
-			return res.status(404).json({"message":"not found"});
+			return res.status(404).json({"message":"Ei löytynyt."});
 		}
 		if(!item) {
-			return res.status(404).json({"message":"not found"});
+			return res.status(404).json({"message":"Ei löytynyt."});
 		}
 		if(req.session.username === item.username) {
-			pelitModel.deleteOne({"_id":req.params.id}, function(err) {
+			gameModel.deleteOne({"_id":req.params.id}, function(err) {
 				if(err) {
-					return res.status(404).json({"message":"not found"});
+					return res.status(404).json({"message":"Ei löytynyt."});
 				}
-				return res.status(200).json({"message":"success"});
+				return res.status(200).json({"message":"onnistui"});
 			});
 		} else {
-			return res.status(403).json({"message":"not allowed"});
+			return res.status(403).json({"message":"Ei sallittu."});
 		}
 	});
 });
 
 router.put("/pelit/:id", function(req, res) {
-	pelitModel.findById(req.params.id, function(err,item) {
+	gameModel.findById(req.params.id, function(err,item) {
 		if(err) {
-			return res.status(404).json({"message":"not found"});
+			return res.status(404).json({"message":"Ei löytynyt."});
 		}
 		if(!item) {
-			return res.status(404).json({"message":"not found"});
+			return res.status(404).json({"message":"Ei löytynyt."});
 		}
-		if( req.body.nimi < 1 ) {
+		if( req.body.game < 1 ) {
 			return res.status(409).json({"message":"Ei tallennettu."});
 		}
 		if(req.session.username === item.username) {
-			pelitModel.replaceOne({_id:req.params.id}, {
-				kokoelma:req.body.kokoelma,
-				kategoriat:req.body.kategoriat,
-				nimi:req.body.nimi,
-				kuvaus:req.body.kuvaus,
+			gameModel.replaceOne({_id:req.params.id}, {
+				collectionName:req.body.collectionName,
+				categories:req.body.categories,
+				game:req.body.game,
+				description:req.body.description,
 				username:req.session.username
 			}, function(err,item) {
 				if(err) {
@@ -86,57 +86,57 @@ router.put("/pelit/:id", function(req, res) {
 				return res.status(200).json({"message":"Muutokset tallennettu."});
 			});
 		} else {
-			return res.status(403).json({"message":"not allowed"});
+			return res.status(403).json({"message":"Ei sallittu."});
 		}
 	});
 });
 
 router.get("/kokoelmat", function(req, res) {
 	let username = req.session.username;
-	let list = [];
-	kokoelmatModel.find({"username":username}, {"kokoelma":1}, function(err,items) {
+	//let list = [];
+	collectionModel.find({"username":username}, {"collectionName":1}, function(err,items) {
 		if(err) {
-			return res.status(404).json({"message":"not found", "list":[]});
+			return res.status(404).json({"message":"Ei löytynyt.", "list":[]});
 		}
 		if(!items) {
-			return res.status(404).json({"message":"not found", "list":[]});
+			return res.status(404).json({"message":"Ei löytynyt.", "list":[]});
 		}
 		return res.status(200).json(items);
 	})
 });
 
 router.post("/kokoelmat", function(req, res) {
-	let item = new kokoelmatModel({
-		kokoelma:req.body.kokoelma,
+	let item = new collectionModel({
+		collectionName:req.body.collectionName,
 		username:req.session.username
 	});
-	if(!item || item.kokoelma.length < 1) {
+	if(!item || item.collectionName.length < 1) {
 		return res.status(409).json({"message":"Ei tallennettu."});
 	}
 	item.save(function(err) {
 		if(err) {
-			return res.status(409).json({"message":"not saved"});
+			return res.status(409).json({"message":"Ei tallennettu."});
 		}
 		return res.status(200).json({"message":"Kokoelma lisätty."});
 	});
 });
 
 router.delete("/kokoelmat/:id", function(req, res) {
-	let kokoelmaquery = {};
-	kokoelmatModel.findById(req.params.id, function(err,item) {
+	let collectionquery = {};
+	collectionModel.findById(req.params.id, function(err,item) {
 		if(err) {
-			return res.status(404).json({"message":"not found"});
+			return res.status(404).json({"message":"Ei löytynyt."});
 		}
 		if(!item) {
-			return res.status(404).json({"message":"not found"});
+			return res.status(404).json({"message":"Ei löytynyt."});
 		}
 		if(req.session.username === item.username) {
-			kokoelmaquery = {kokoelma:item.kokoelma,username:req.session.username};
-			kokoelmatModel.deleteOne({"_id":req.params.id}, function(err) {
+			collectionquery = {collectionName:item.collectionName,username:req.session.username};
+			collectionModel.deleteOne({"_id":req.params.id}, function(err) {
 				if(err) {
-					return res.status(404).json({"message":"not found"});
+					return res.status(404).json({"message":"Ei löytynyt."});
 				}
-				pelitModel.updateMany(kokoelmaquery,{$set: {kokoelma:""}}, function (err, result) {
+				gameModel.updateMany(collectionquery,{$set: {collectionName:""}}, function (err, result) {
 					if (err) {
 						console.log("update document error");
 					} else {
@@ -144,36 +144,36 @@ router.delete("/kokoelmat/:id", function(req, res) {
 						console.log(result);
 					}
 				})
-				return res.status(200).json({"message":"success"});
+				return res.status(200).json({"message":"onnistui"});
 			});
 		} else {
-			return res.status(403).json({"message":"not allowed"});
+			return res.status(403).json({"message":"Ei sallittu."});
 		}
 	});
 });
 
 router.put("/kokoelmat/:id", function(req, res) {
-	let kokoelmaquery = {};
-	kokoelmatModel.findById(req.params.id, function(err,item) {
+	let collectionquery = {};
+	collectionModel.findById(req.params.id, function(err,item) {
 		if(err) {
-			return res.status(404).json({"message":"not found"});
+			return res.status(404).json({"message":"Ei löytynyt."});
 		}
 		if(!item) {
-			return res.status(404).json({"message":"not found"});
+			return res.status(404).json({"message":"Ei löytynyt."});
 		}
-		if(req.body.kokoelma.length < 1 ) {
+		if(req.body.collectionName.length < 1 ) {
 			return res.status(409).json({"message":"Ei tallennettu."});
 		}
 		if(req.session.username === item.username) {
-			kokoelmaquery = {kokoelma:item.kokoelma,username:req.session.username};
-			kokoelmatModel.replaceOne({_id:req.params.id}, {
-				kokoelma:req.body.kokoelma,
+			collectionquery = {collectionName:item.collectionName,username:req.session.username};
+			collectionModel.replaceOne({_id:req.params.id}, {
+				collectionName:req.body.collectionName,
 				username:req.session.username
 			}, function(err,item) {
 				if(err) {
 					return res.status(409).json({"message":err});
 				}
-				pelitModel.updateMany(kokoelmaquery,{$set: {kokoelma:req.body.kokoelma}}, function (err, result) {
+				gameModel.updateMany(collectionquery,{$set: {collectionName:req.body.collectionName}}, function (err, result) {
 					if (err) {
 						console.log("update document error");
 					} else {
@@ -184,57 +184,57 @@ router.put("/kokoelmat/:id", function(req, res) {
 				return res.status(200).json({"message":"Muutokset tallennettu."});
 			});
 		} else {
-			return res.status(403).json({"message":"not allowed"});
+			return res.status(403).json({"message":"Ei sallittu."});
 		}
 	});
 });
 
 router.get("/kategoriat", function(req, res) {
 	let username = req.session.username;
-	let list = [];
-	kategoriatModel.find({"username":username}, {"kategoria":1}, function(err,items) {
+	//let list = [];
+	categoryModel.find({"username":username}, {"category":1}, function(err,items) {
 		if(err) {
-			return res.status(404).json({"message":"not found", "list":[]});
+			return res.status(404).json({"message":"Ei löytynyt.", "list":[]});
 		}
 		if(!items) {
-			return res.status(404).json({"message":"not found", "list":[]});
+			return res.status(404).json({"message":"Ei löytynyt.", "list":[]});
 		}
 		return res.status(200).json(items);
 	})
 });
 
 router.post("/kategoriat", function(req, res) {
-	let item = new kategoriatModel({
-		kategoria:req.body.kategoria,
+	let item = new categoryModel({
+		category:req.body.category,
 		username:req.session.username
 	});
-		if(!item || item.kategoria < 1) {
+		if(!item || item.category < 1) {
 			return res.status(409).json({"message":"Ei tallennettu."});
 		}
 	item.save(function(err,item) {
 		if(err) {
-			return res.status(409).json({"message":"not saved"});
+			return res.status(409).json({"message":"Ei tallennettu."});
 		}
 		return res.status(200).json({"message":"Kategoria lisätty."});
 	});
 });
 
 router.delete("/kategoriat/:id", function(req, res) {
-	let kategoriaquery = {};
-	kategoriatModel.findById(req.params.id, function(err,item) {
+	let categoryquery = {};
+	categoryModel.findById(req.params.id, function(err,item) {
 		if(err) {
-			return res.status(404).json({"message":"not found"});
+			return res.status(404).json({"message":"Ei löytynyt."});
 		}
 		if(!item) {
-			return res.status(404).json({"message":"not found"});
+			return res.status(404).json({"message":"Ei löytynyt."});
 		}
 		if(req.session.username === item.username) {
-			kategoriaquery = {kategoriat:item.kategoria,username:req.session.username};
-			kategoriatModel.deleteOne({"_id":req.params.id}, function(err) {
+			categoryquery = {category:item.category,username:req.session.username};
+			categoryModel.deleteOne({"_id":req.params.id}, function(err) {
 				if(err) {
-					return res.status(404).json({"message":"not found"});
+					return res.status(404).json({"message":"Ei löytynyt."});
 				}
-				pelitModel.updateMany(kategoriaquery,{$pull: {kategoriat:item.kategoria}}, function (err, result) {
+				gameModel.updateMany(categoryquery,{$pull: {categories:item.category}}, function (err, result) {
 					if (err) {
 						console.log("update document error");
 					} else {
@@ -242,38 +242,36 @@ router.delete("/kategoriat/:id", function(req, res) {
 						console.log(result);
 					}
 				})
-				return res.status(200).json({"message":"success"});
+				return res.status(200).json({"message":"onnistui"});
 			});
 		} else {
-			return res.status(403).json({"message":"not allowed"});
+			return res.status(403).json({"message":"Ei sallittu."});
 		}
 	});
 });
 
 router.put("/kategoriat/:id", function(req, res) {
-	let kategoriaquery = {};
-	kategoriatModel.findById(req.params.id, function(err,item) {
+	let categoryquery = {};
+	categoryModel.findById(req.params.id, function(err,item) {
 		if(err) {
-			return res.status(404).json({"message":"not found"});
+			return res.status(404).json({"message":"Ei löytynyt."});
 		}
 		if(!item) {
-			return res.status(404).json({"message":"not found"});
+			return res.status(404).json({"message":"Ei löytynyt."});
 		}
-		if(req.body.kategoria.length < 1 ) {
+		if(req.body.category.length < 1 ) {
 			return res.status(409).json({"message":"Ei tallennettu."});
 		}
 		if(req.session.username === item.username) {
-			console.log(req.session.username);
-			console.log(item.username);
-			kategoriaquery = {kategoriat:item.kategoria,username:req.session.username};
-			kategoriatModel.replaceOne({_id:req.params.id}, {
-				kategoria:req.body.kategoria,
+			categoryquery = {categories:item.category,username:req.session.username};
+			categoryModel.replaceOne({_id:req.params.id}, {
+				category:req.body.category,
 				username:req.session.username
 			}, function(err,item) {
 				if(err) {
 					return res.status(409).json({"message":err});
 				}
-				pelitModel.updateMany(kategoriaquery,{$set: {"kategoriat.$":req.body.kategoria}}, function (err, result) {
+				gameModel.updateMany(categoryquery,{$set: {"categories.$":req.body.category}}, function (err, result) {
 					if (err) {
 						console.log("update document error");
 					} else {
@@ -284,7 +282,7 @@ router.put("/kategoriat/:id", function(req, res) {
 				return res.status(200).json({"message":"Muutokset tallennettu."});
 			});
 		} else {
-			return res.status(403).json({"message":"not allowed"});
+			return res.status(403).json({"message":"Ei sallittu."});
 		}
 	});
 });
