@@ -9,7 +9,7 @@ class CollectionAndCategoryForm extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			koka:"",
+			collOrCat:"",
 			visible: false
 		}
 	}
@@ -24,23 +24,23 @@ class CollectionAndCategoryForm extends React.Component {
 		let item = {};
 		if(this.props.location.pathname === "/kokoelmat") {
 			item = {
-				collectionName:this.state.koka
+				collectionName:this.state.collOrCat
 			};
 		}
 		else {
 			item = {
-				category:this.state.koka
+				category:this.state.collOrCat
 			};
 		}
 		this.props.dispatch(addToList(item,this.props.token, "/api" + this.props.location.pathname + "/"));
 		this.setState({
-			koka:""
+			collOrCat:""
 		})
 		if(this.props.message.length > 0 || this.props.error.length > 0 ) {
 			this.setState({visible:true});
 			setTimeout(() => {
 			  this.setState({ visible: false })
-			}, 3000)
+			}, 30000)
 		}
 	}
 	handleDismiss = () => {
@@ -79,15 +79,15 @@ class CollectionAndCategoryForm extends React.Component {
 			<div>
 				<Form onSubmit={this.onSubmit}>
 					<Form.Field>
-						<label htmlFor="koka">{name}:</label>
+						<label htmlFor="collOrCat">{name}:</label>
 						<input type="text"
-							name="koka"
+							name="collOrCat"
 							placeholder={name}
 							style={{textAlign: 'center' }}
 							onChange={this.onChange}
-							value={this.state.koka}/>
+							value={this.state.collOrCat}/>
 					</Form.Field>
-					<Button type="submit" disabled={!this.state.koka}>Lisää</Button>
+					<Button type="submit" disabled={!this.state.collOrCat}>Lisää</Button>
 				</Form>
 				{message}
 				<br/>

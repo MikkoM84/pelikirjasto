@@ -77,6 +77,15 @@ class AddGameForm extends React.Component {
 		}
 		category.sort((a, b) => a.value.localeCompare(b.value));
 		let message = null;
+		if(this.props.message.length > 0) {
+			  message = <Message
+				success
+				hidden={!this.state.visible}
+				onDismiss={this.handleDismiss}
+				onClick={this.handleDismiss}
+				header={this.props.message}
+			  />;
+		}
 		if(this.props.error.length > 0) {
 			message = <Message
 				error
@@ -85,15 +94,6 @@ class AddGameForm extends React.Component {
 				onClick={this.handleDismiss}
 				header='Virhe'
 				content={this.props.error}
-			  />;
-		}
-		if(this.props.message.length > 0) {
-			  message = <Message
-				success
-				hidden={!this.state.visible}
-				onDismiss={this.handleDismiss}
-				onClick={this.handleDismiss}
-				header={this.props.message}
 			  />;
 		}
 		
@@ -136,7 +136,7 @@ class AddGameForm extends React.Component {
 							  onChange={this.handleSelect}
 							  name="categories"
 							  fluid selection multiple
-							style={{textAlignLast: 'center' }}
+							  style={{textAlignLast: 'center' }}
 							  options={category}
 							  value={this.state.categories}/>
 				</Form.Field>

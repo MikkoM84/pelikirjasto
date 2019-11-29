@@ -18,7 +18,7 @@ let ttl_diff = 1000*60*60;
 let port = process.env.PORT || 3001;
 
 mongoose.connect("mongodb+srv://"+config.mongouser+":"+config.mongopassword+"@"+
-		config.mongoaddress+config.mongoDB+config.options, { useNewUrlParser: true }).then(
+		config.mongoaddress+config.mongoDB+config.options, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true }).then(
 	() => {console.log("Success in connecting Mongodb")},
 	error => {console.log("Error in connecting Mongodb: " + error)}
 );

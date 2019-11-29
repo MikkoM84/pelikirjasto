@@ -7,11 +7,11 @@ export default class EditCollectionAndCategoryRow extends React.Component {
 		super(props);
 		if(this.props.url === "/kokoelmat") {
 			this.state = {
-				koka:props.item.collectionName
+				collOrCat:props.item.collectionName
 			}
 		} else {
 			this.state = {
-				koka:props.item.category
+				collOrCat:props.item.category
 			}
 		}
 	}
@@ -27,12 +27,12 @@ export default class EditCollectionAndCategoryRow extends React.Component {
 		if(this.props.url === "/kokoelmat" ) {
 			item = {
 				_id:this.props.item._id,
-				collectionName:this.state.koka
+				collectionName:this.state.collOrCat
 			}
 		} else {
 			item = {
 				_id:this.props.item._id,
-				category:this.state.koka
+				category:this.state.collOrCat
 			}
 		}
 		this.props.editItem(item);
@@ -46,17 +46,17 @@ export default class EditCollectionAndCategoryRow extends React.Component {
 			<Table.Row>
 				<Table.Cell>
 					<input type="text"
-							name="koka"
+							name="collOrCat"
 							required
 							onChange={this.onChange}
-							value={this.state.koka}/>
+							value={this.state.collOrCat}/>
 				</Table.Cell>
 				
 				<Table.Cell>
 					<Button color="green"
 							name={this.props.item._id}
 							onClick={this.editItem}
-							disabled={!this.state.koka}>Tallenna</Button>
+							disabled={!this.state.collOrCat}>Tallenna</Button>
 				</Table.Cell>
 				<Table.Cell>
 					<Button color="red"

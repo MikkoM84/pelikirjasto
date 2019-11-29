@@ -175,11 +175,12 @@ class GameList extends React.Component {
 		});
 		
 		const page = this.state.page;
-		listitems = listitems.filter((el) => el != null).slice(
+		listitems = listitems.filter((el) => el != null);
+		const totalPages = listitems.length / this.state.gamesPerPage;
+		listitems = listitems.slice(
 			(page - 1) * this.state.gamesPerPage,
 			(page - 1) * this.state.gamesPerPage + this.state.gamesPerPage
 		);
-		const totalPages = listitems.length / this.state.gamesPerPage;
 		const opt = [{ text: 10, value: 10 },{ text: 20, value: 20 },{ text: 50, value: 50 },
 			{ text: 100, value: 100 },{ text: 500, value: 500 },{ text: 1000, value: 1000 },];
 
