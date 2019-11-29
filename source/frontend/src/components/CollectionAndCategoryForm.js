@@ -32,16 +32,17 @@ class CollectionAndCategoryForm extends React.Component {
 				category:this.state.collOrCat
 			};
 		}
-		this.props.dispatch(addToList(item,this.props.token, "/api" + this.props.location.pathname + "/"));
+		this.props.dispatch(addToList(item,this.props.token, "/api" + this.props.location.pathname + "/")).then(() => {
+			if(this.props.message.length > 0 || this.props.error.length > 0 ) {
+				this.setState({visible:true});
+				setTimeout(() => {
+				  this.setState({ visible: false })
+				}, 3000)
+			}
+		});
 		this.setState({
 			collOrCat:""
 		})
-		if(this.props.message.length > 0 || this.props.error.length > 0 ) {
-			this.setState({visible:true});
-			setTimeout(() => {
-			  this.setState({ visible: false })
-			}, 30000)
-		}
 	}
 	handleDismiss = () => {
 		this.setState({ visible: false })
